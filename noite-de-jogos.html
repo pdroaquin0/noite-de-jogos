@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Noite de Jogos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0e0e14; --surface:#16161f; --surface-2:#1e1e2b; --surface-3:#26263a;
+    --text:#f4f1ea; --muted:#8c8ca0; --faint:#5c5c70;
+    --lime:#c6f24e; --lime-d:#9fd02a;
+    --red:#ff3b5c; --red-d:#d61f43;
+    --gold:#ffcb45;
+    --border:rgba(255,255,255,.09);
+    --display:'Bricolage Grotesque',system-ui,sans-serif;
+    --body:'Sora',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    background:var(--bg);color:var(--text);font-family:var(--body);
+    background-image:
+      radial-gradient(circle at 15% -10%, rgba(198,242,78,.07), transparent 40%),
+      radial-gradient(circle at 90% 110%, rgba(255,59,92,.08), transparent 45%);
+    background-attachment:fixed;
+    overflow-x:hidden;
+  }
+  #app{max-width:560px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:0 18px 40px}
+  /* top bar */
+  .bar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:10px;padding:16px 0 12px;background:linear-gradient(var(--bg) 70%,transparent);backdrop-filter:blur(4px)}
+  .brand{font-family:var(--display);font-weight:800;font-size:20px;letter-spacing:-.02em;line-height:1;display:flex;align-items:center;gap:7px}
+  .brand b{color:var(--lime)}
+  .bar-meta{margin-left:auto;display:flex;gap:8px}
+  .pill{font-size:12px;font-weight:600;color:var(--muted);background:var(--surface);border:1px solid var(--border);padding:6px 10px;border-radius:20px;display:flex;align-items:center;gap:5px;cursor:pointer;transition:.15s}
+  .pill:active{transform:scale(.94)}
+  .pill b{color:var(--text)}
+  /* generic */
+  h1{font-family:var(--display);font-weight:800;letter-spacing:-.03em;line-height:.95}
+  .screen{animation:rise .35s cubic-bezier(.2,.8,.2,1) both;flex:1}
+  @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .stagger>*{animation:rise .4s cubic-bezier(.2,.8,.2,1) both}
+  .stagger>*:nth-child(1){animation-delay:.02s}.stagger>*:nth-child(2){animation-delay:.07s}
+  .stagger>*:nth-child(3){animation-delay:.12s}.stagger>*:nth-child(4){animation-delay:.17s}
+  .stagger>*:nth-child(5){animation-delay:.22s}.stagger>*:nth-child(6){animation-delay:.27s}
+  .muted{color:var(--muted)}.faint{color:var(--faint)}
+  .center{text-align:center}
+  .row{display:flex;gap:10px;align-items:center}
+  .grow{flex:1}
+  /* buttons */
+  .btn{font-family:var(--body);font-weight:700;font-size:16px;border:none;border-radius:16px;padding:16px 18px;width:100%;cursor:pointer;transition:.15s;display:flex;align-items:center;justify-content:center;gap:9px;line-height:1}
+  .btn:active{transform:scale(.97)}
+  .btn-lime{background:var(--lime);color:#10100a}
+  .btn-red{background:var(--red);color:#fff}
+  .btn-ghost{background:var(--surface-2);color:var(--text);border:1px solid var(--border)}
+  .btn-gold{background:var(--gold);color:#241c00}
+  .btn-lg{padding:20px;font-size:18px;border-radius:20px}
+  .btn-sm{padding:11px 14px;font-size:14px;border-radius:12px;width:auto}
+  .btn:disabled{opacity:.4;cursor:not-allowed}
+  /* cards */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:18px}
+  .tile{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:16px;text-align:left;cursor:pointer;transition:.15s;position:relative;overflow:hidden}
+  .tile:active{transform:scale(.97)}
+  .tile.disabled{opacity:.38;pointer-events:none}
+  .tile .emoji{font-size:26px;line-height:1}
+  .tile .tname{font-family:var(--display);font-weight:700;font-size:17px;margin-top:8px;letter-spacing:-.02em}
+  .tile .tdesc{font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.35}
+  .tag{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:3px 7px;border-radius:7px;margin-top:10px}
+  .tag.imp{background:rgba(255,59,92,.16);color:#ff8298}
+  .tag.reg{background:rgba(198,242,78,.16);color:var(--lime)}
+  .tag.esc{background:rgba(120,180,255,.16);color:#8ec0ff}
+  .tag.deb{background:rgba(255,203,69,.16);color:var(--gold)}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+  /* chips */
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{font-size:13px;font-weight:600;padding:9px 13px;border-radius:12px;background:var(--surface);border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:.15s}
+  .chip:active{transform:scale(.95)}
+  .chip.on{background:var(--lime);color:#10100a;border-color:var(--lime)}
+  /* stepper */
+  .stepper{display:flex;align-items:center;gap:0;background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+  .stepper button{width:46px;height:46px;background:none;border:none;color:var(--text);font-size:22px;font-weight:700;cursor:pointer}
+  .stepper button:active{background:var(--surface-3)}
+  .stepper .val{flex:1;text-align:center;font-family:var(--display);font-weight:700;font-size:20px;min-width:54px}
+  /* players */
+  .pinput{display:flex;gap:8px;margin-bottom:14px}
+  .pinput input{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px;color:var(--text);font-family:var(--body);font-size:16px;outline:none}
+  .pinput input:focus{border-color:var(--lime)}
+  .plist{display:flex;flex-direction:column;gap:8px}
+  .prow{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 14px}
+  .pnum{width:26px;height:26px;border-radius:50%;background:var(--surface-3);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--muted);flex:0 0 auto}
+  .prow .pn{font-weight:600;flex:1}
+  .xbtn{background:none;border:none;color:var(--faint);font-size:20px;cursor:pointer;padding:4px 6px;line-height:1}
+  .xbtn:active{color:var(--red)}
+  /* reveal pass card */
+  .pass{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:18px;padding:30px 16px}
+  .reveal-card{width:100%;border-radius:24px;padding:34px 22px;min-height:280px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;cursor:pointer;border:1px solid var(--border);transition:.2s;position:relative}
+  .reveal-card.hidden{background:var(--surface-2)}
+  .reveal-card.shown.cidade{background:linear-gradient(160deg,#1a2410,#0e0e14);border-color:var(--lime)}
+  .reveal-card.shown.impostor{background:linear-gradient(160deg,#2a0f17,#0e0e14);border-color:var(--red)}
+  .reveal-card .big{font-family:var(--display);font-weight:800;font-size:40px;letter-spacing:-.03em;line-height:1.02;margin:6px 0}
+  .reveal-card .big.imp{color:var(--red)}
+  .reveal-card .big.cid{color:var(--lime)}
+  .flip-in{animation:flip .35s ease both}
+  @keyframes flip{from{opacity:0;transform:rotateX(40deg) scale(.95)}to{opacity:1;transform:none}}
+  .kicker{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  /* timer */
+  .timer-wrap{display:flex;flex-direction:column;align-items:center;gap:8px;margin:26px 0}
+  .timer{font-family:var(--display);font-weight:800;font-size:88px;letter-spacing:-.04em;line-height:1;font-variant-numeric:tabular-nums}
+  .timer.warn{color:var(--red);animation:pulse .6s infinite alternate}
+  @keyframes pulse{to{transform:scale(1.06)}}
+  .ring{width:200px;height:200px}
+  /* scoreboard */
+  .srow{display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:14px 16px;margin-bottom:9px;transition:.3s}
+  .srow .rank{font-family:var(--display);font-weight:800;font-size:22px;width:30px;color:var(--faint)}
+  .srow.top1{border-color:var(--gold);background:linear-gradient(120deg,rgba(255,203,69,.1),var(--surface))}
+  .srow.top1 .rank{color:var(--gold)}
+  .srow .sn{flex:1;font-weight:600;font-size:16px}
+  .srow .sp{font-family:var(--display);font-weight:800;font-size:24px}
+  .lead{font-size:15px;line-height:1.55;color:var(--muted)}
+  .sec-label{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin:24px 0 11px}
+  .note{font-size:13px;color:var(--muted);background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--lime);border-radius:10px;padding:11px 13px;line-height:1.5}
+  .note.imp{border-left-color:var(--red)}
+  .spacer{height:14px}
+  .big-emoji{font-size:54px;line-height:1}
+  .confetti{position:fixed;inset:0;pointer-events:none;z-index:50}
+  .conf{position:absolute;width:9px;height:14px;top:-20px;animation:fall linear forwards}
+  @keyframes fall{to{transform:translateY(105vh) rotate(720deg);opacity:.8}}
+  a.creditless{color:var(--faint);font-size:11px;text-decoration:none}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+/* =========================================================
+   DADOS
+========================================================= */
+const THEMES = {
+  geral:    {label:'Geral 🎲', items:['Praia','Pizza','Médico','Futebol','Chuva','Aniversário','Academia','Cachorro','Trânsito','Casamento','Show','Padaria','Viagem','Eleição','Halloween']},
+  anime:    {label:'Anime 🍥', items:['Naruto','Goku','Luffy','Saitama','Eren','Levi','Tanjiro','Pikachu','Vegeta','Itachi','Gojo','Light','Mikasa','Zoro','Sailor Moon']},
+  filmes:   {label:'Filmes & Séries 🎬', items:['Harry Potter','Darth Vader','Homem-Aranha','Batman','Coringa','Walter White','Thanos','Hermione','John Wick','Shrek','Neo','Gandalf','Elsa','Yoda','Hulk']},
+  animais:  {label:'Animais 🦁', items:['Leão','Elefante','Pinguim','Tubarão','Girafa','Preguiça','Polvo','Coruja','Canguru','Capivara','Lobo','Golfinho','Camaleão','Ornitorrinco','Tucano']},
+  comidas:  {label:'Comidas 🍕', items:['Pizza','Coxinha','Sushi','Brigadeiro','Feijoada','Hambúrguer','Açaí','Lasanha','Pão de queijo','Tapioca','Pastel','Churrasco','Sorvete','Pamonha','Strogonoff']},
+  futebol:  {label:'Futebol ⚽', items:['Pelé','Messi','Neymar','Cristiano Ronaldo','Maradona','Ronaldinho','Mbappé','Zidane','Garrincha','Haaland','Vini Jr','Marta','Romário','Kaká','Casemiro']},
+  lugares:  {label:'Lugares 🌍', items:['Praia','Disney','Paris','Amazônia','Saara','Tóquio','Cristo Redentor','Lua','Iguaçu','Times Square','Machu Picchu','Polo Norte','Veneza','Pirâmides','Cinema']},
+  profissoes:{label:'Profissões 👷', items:['Médico','Bombeiro','Professor','Chef','Piloto','Advogado','Astronauta','Encanador','Influencer','Cientista','Policial','Dentista','Padeiro','DJ','Veterinário']},
+  objetos:  {label:'Objetos 🧦', items:['Geladeira','Controle remoto','Guarda-chuva','Escova de dente','Carregador','Travesseiro','Liquidificador','Chinelo','Óculos','Ventilador','Carteira','Fone','Espelho','Mochila','Tesoura']},
+};
+
+const QPAIRS = [
+  ['Melhor viagem da sua vida?','Lugar que você ainda quer conhecer?'],
+  ['Última coisa que você comeu hoje?','Sua comida favorita?'],
+  ['App que você mais usa?','App que você mais odeia?'],
+  ['Melhor presente que já ganhou?','Pior presente que já ganhou?'],
+  ['O que você faria com 1 milhão?','O que você faria com 100 reais?'],
+  ['Algo que você sabe fazer bem?','Algo que você queria saber fazer?'],
+  ['Filme que assistiria de novo?','Filme superestimado pra você?'],
+  ['Seu maior medo?','Uma fobia comum nas pessoas?'],
+  ['Melhor matéria da escola?','Pior matéria da escola?'],
+  ['Onde você queria estar agora?','Onde você definitivamente não queria estar?'],
+];
+
+const SCALE_PROMPTS = [
+  'Nível de irritação no trânsito',
+  'O quão constrangedor isso seria',
+  'Nível de perigo da situação',
+  'O quão delicioso é',
+  'Nível de polêmica da opinião',
+  'O quão difícil é de fazer',
+];
+
+const BOTAO = [
+  'Você ganha R$ 10 milhões, MAS todo lanche o primeiro pedaço sempre cai no chão.',
+  'Você nunca mais paga conta nenhuma, MAS toda música que ouvir fica 10% mais baixa.',
+  'Você pode se teletransportar, MAS chega sempre 5 minutos atrasado.',
+  'Você fica rico, MAS todo mundo acha que você está sempre mentindo.',
+  'Você nunca mais fica doente, MAS espirra toda vez que pensa em alguém.',
+  'Você pode voar, MAS só a 10 cm do chão e na velocidade de uma caminhada.',
+];
+
+const GAMES = [
+  // ---- IMPOSTOR ----
+  {id:'palavra', fam:'imp', emoji:'😶', name:'Palavra Oculta', min:3, max:14, theme:true,
+   desc:'Todos sabem a palavra. Um não. Achem o impostor.',
+   rules:'Todos os jogadores recebem a MESMA palavra secreta, menos o impostor, que não recebe nada. Cada um, na sua vez, fala UMA palavra relacionada ao tema sem entregar a palavra exata. O impostor blefa tentando se misturar. No fim, todos discutem e votam em quem acham que é o impostor.'},
+  {id:'invertida', fam:'imp', emoji:'🔄', name:'Pergunta Invertida', min:3, max:12, theme:false,
+   desc:'Mesma pergunta pra todos. O impostor recebe outra parecida.',
+   rules:'A maioria recebe uma pergunta. O impostor recebe uma pergunta PARECIDA, mas diferente. Todos respondem em voz alta como se fosse a mesma pergunta. A resposta do impostor vai soar levemente fora de contexto. Discutam e votem.'},
+  {id:'coordenada', fam:'imp', emoji:'🎯', name:'Coordenada Errada', min:3, max:12, theme:true,
+   desc:'Todos veem a mesma lista. Um recebe o número errado.',
+   rules:'Todos veem a mesma lista de 6 itens numerados. A cidade recebe o MESMO número secreto; o impostor recebe um número DIFERENTE. Cada um fala uma palavra ligada ao SEU item. Quem estiver no item errado vai se entregar. Discutam e votem.'},
+  {id:'personagem', fam:'imp', emoji:'🎭', name:'Personagem Secreto', min:3, max:14, theme:true,
+   desc:'Todos recebem o mesmo personagem. O impostor, nada.',
+   rules:'Todos recebem o mesmo personagem/coisa secreta. O impostor não recebe e precisa fingir que recebeu. Cada um dá uma pista sutil sobre o personagem. O impostor improvisa em cima do que os outros disseram. Votem no impostor.'},
+  {id:'duplo', fam:'imp', emoji:'🕵️', name:'Duplo Impostor', min:5, max:16, theme:true, impostors:2,
+   desc:'Como Palavra Oculta, mas com DOIS impostores que não se conhecem.',
+   rules:'Igual à Palavra Oculta, mas existem DOIS impostores, e eles não sabem quem é o outro. Eles podem até se acusar pra desviar a atenção. A cidade precisa achar os dois. Caos garantido.'},
+  // ---- REGRA (só anfitrião) ----
+  {id:'banquete', fam:'reg', emoji:'👑', name:'O Banquete do Rei', min:3, max:12,
+   desc:'Só o anfitrião sabe a regra secreta.',
+   rules:'Cada jogador diz o que vai levar ao banquete. O anfitrião responde só "Pode" ou "Não pode". Os jogadores tentam descobrir o padrão.',
+   secret:'REGRA SECRETA: o item só é aceito se começar com a ÚLTIMA letra do nome do jogador da vez. (Ex.: "Ana" termina em A → pode levar "Arroz".)'},
+  {id:'tempo', fam:'reg', emoji:'⏳', name:'Viagem no Tempo', min:3, max:12,
+   desc:'Só o anfitrião sabe a regra secreta.',
+   rules:'Cada jogador diz o que vai levar na viagem no tempo. O anfitrião responde "Pode" ou "Não pode". Descubram o padrão.',
+   secret:'REGRA SECRETA: só pode levar coisas que NÃO existiam em 1900 (tecnologia moderna). Dica de mestre: a palavra "tempo" induz todo mundo a pensar em relógios — deixe.'},
+  {id:'gestos', fam:'reg', emoji:'🤙', name:'O Clube dos Gestos', min:3, max:12,
+   desc:'Só o anfitrião sabe a regra secreta.',
+   rules:'Cada jogador tenta entrar no clube falando uma frase. O anfitrião diz se entrou ou não. A palavra não importa.',
+   secret:'REGRA SECRETA: o jogador só entra se fizer um GESTO físico enquanto fala (coçar a cabeça, cruzar os braços, tocar o rosto). Quem fala parado é rejeitado.'},
+  {id:'cores', fam:'reg', emoji:'🎨', name:'O Piquenique das Cores', min:3, max:12,
+   desc:'Só o anfitrião sabe a regra secreta.',
+   rules:'Cada jogador diz o que vai levar ao piquenique. O anfitrião responde "Pode" ou "Não pode".',
+   secret:'REGRA SECRETA: o objeto só é aceito se a cor dele combinar com a cor da ROUPA que o jogador da vez está vestindo.'},
+  {id:'fronteira', fam:'reg', emoji:'🛂', name:'Fronteira sem "E"', min:3, max:12,
+   desc:'Só o anfitrião sabe a regra secreta.',
+   rules:'Cada jogador diz o que vai levar para passar a fronteira. O anfitrião responde "Pode" ou "Não pode".',
+   secret:'REGRA SECRETA: só passa a palavra que NÃO contém a letra "E". (Ex.: "carro" pode, "caminhonete" não.)'},
+  // ---- ESCALA ----
+  {id:'escala', fam:'esc', emoji:'📊', name:'Escala Oculta', min:3, max:10, scale:true,
+   desc:'Cada um recebe um número 1–10 em segredo. Ordenem o grupo.',
+   rules:'Cada jogador recebe um número secreto de 1 a 10 sobre um tema (ex.: "nível de irritação no trânsito"). Cada um dá um exemplo da intensidade do seu número, SEM dizer o número. O grupo tenta ordenar todo mundo do menor para o maior. Acertou a ordem inteira, todos pontuam.'},
+  // ---- CONCEITO ----
+  {id:'pistas', fam:'esc', emoji:'🧩', name:'3 Pistas, 1 Conceito', min:3, max:12, clue:true, theme:true,
+   desc:'Um jogador dá 3 pistas. O grupo adivinha o conceito.',
+   rules:'Um jogador (sorteado) vê um conceito secreto e dá apenas TRÊS palavras como pista, uma de cada vez. O grupo tem que adivinhar o conceito. Acertou: o jogador que adivinhou e o que deu as pistas pontuam.'},
+  // ---- DEBATE ----
+  {id:'botao', fam:'deb', emoji:'🔘', name:'O Dilema do Botão', min:2, max:99,
+   desc:'Cenário polêmico. Aperta ou não? Defenda.',
+   rules:'O anfitrião lê o cenário. Cada um vota se apertaria o botão e defende seu ponto contra os outros. Não vale ficar em cima do muro. Sem placar fixo — opcionalmente o grupo dá +1 ao melhor argumento.'},
+];
+
+const FAM_TAG = {imp:['imp','Impostor'], reg:['reg','Qual é a regra'], esc:['esc','Sintonia'], deb:['deb','Debate']};
+
+/* =========================================================
+   ESTADO
+========================================================= */
+let S = {
+  screen:'home',
+  players:[],
+  theme:'geral',
+  rounds:5,
+  discuss:120,
+  currentRound:1,
+  game:null,
+  round:null, // runtime
+};
+
+/* =========================================================
+   HELPERS
+========================================================= */
+const $=(s)=>document.querySelector(s);
+const app=$('#app');
+const rnd=(n)=>Math.floor(Math.random()*n);
+const shuffle=(a)=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]];}return a;};
+const esc=(s)=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function playable(g){return S.players.length>=g.min && S.players.length<=g.max;}
+function fmt(t){const m=Math.floor(t/60),s=t%60;return m+':'+String(s).padStart(2,'0');}
+
+function go(scr){S.screen=scr;render();window.scrollTo(0,0);}
+
+/* =========================================================
+   MONTAGEM DE RODADA
+========================================================= */
+function startGame(g){
+  S.game=g;
+  go('briefing');
+}
+
+function buildRound(){
+  const g=S.game, P=S.players, n=P.length;
+  const items=THEMES[S.theme].items;
+  let r={revealIdx:0};
+
+  if(g.fam==='imp'){
+    const nImp=g.impostors||1;
+    const impSet=shuffle([...Array(n).keys()]).slice(0,nImp);
+    r.impostors=impSet;
+    r.cards=[];
+    if(g.id==='palavra'||g.id==='duplo'){
+      const word=items[rnd(items.length)];
+      r.secretWord=word;
+      for(let i=0;i<n;i++){
+        r.cards.push(impSet.includes(i)
+          ? {type:'imp', big:'VOCÊ É O<br>IMPOSTOR', sub:'Descubra a palavra secreta sem se entregar.'}
+          : {type:'cid', kicker:'A palavra é', big:word, sub:'Dê uma pista sutil. Não entregue a palavra.'});
+      }
+    } else if(g.id==='personagem'){
+      const word=items[rnd(items.length)];
+      r.secretWord=word;
+      for(let i=0;i<n;i++){
+        r.cards.push(impSet.includes(i)
+          ? {type:'imp', big:'VOCÊ É O<br>IMPOSTOR', sub:'Você NÃO recebeu personagem. Finja que recebeu.'}
+          : {type:'cid', kicker:'Seu personagem', big:word, sub:'Dê pistas sutis sobre ele.'});
+      }
+    } else if(g.id==='invertida'){
+      const pair=QPAIRS[rnd(QPAIRS.length)];
+      r.pair=pair;
+      for(let i=0;i<n;i++){
+        r.cards.push(impSet.includes(i)
+          ? {type:'cid', kicker:'Sua pergunta', big:'❓', q:pair[1], sub:'Responda em voz alta na sua vez.'}
+          : {type:'cid', kicker:'Sua pergunta', big:'❓', q:pair[0], sub:'Responda em voz alta na sua vez.'});
+      }
+    } else if(g.id==='coordenada'){
+      const list=shuffle(items).slice(0,6);
+      r.list=list;
+      const realN=1+rnd(6);
+      let impN; do{impN=1+rnd(6);}while(impN===realN);
+      r.realN=realN; r.impN=impN;
+      for(let i=0;i<n;i++){
+        const num=impSet.includes(i)?impN:realN;
+        r.cards.push({type:'cid', list, num,
+          kicker:'Seu número secreto', big:String(num),
+          sub:'Fale uma palavra ligada ao item número '+num+'.'});
+      }
+    }
+  }
+  else if(g.fam==='reg'){
+    // anfitrião sorteado
+    r.host=rnd(n);
+    r.secret=g.secret;
+  }
+  else if(g.id==='escala'){
+    const prompt=SCALE_PROMPTS[rnd(SCALE_PROMPTS.length)];
+    r.prompt=prompt;
+    const nums=shuffle([...Array(10).keys()].map(x=>x+1)).slice(0,n);
+    r.cards=nums.map((num)=>({type:'cid',kicker:prompt,big:String(num),sub:'Dê um exemplo dessa intensidade — sem dizer o número.'}));
+  }
+  else if(g.id==='pistas'){
+    r.clueGiver=rnd(n);
+    r.concept=items[rnd(items.length)];
+  }
+  else if(g.id==='botao'){
+    r.scenario=BOTAO[rnd(BOTAO.length)];
+  }
+  S.round=r;
+}
+
+/* =========================================================
+   PONTUAÇÃO
+========================================================= */
+function award(idxList,pts){idxList.forEach(i=>{if(S.players[i])S.players[i].score+=pts;});}
+function nextRoundOrEnd(){
+  if(S.currentRound>=S.rounds){go('champion');}
+  else{S.currentRound++;S.game=null;S.round=null;go('play');}
+}
+
+/* =========================================================
+   RENDER — TOP BAR
+========================================================= */
+function bar(){
+  return `<div class="bar">
+    <div class="brand">🎪 <span>Noite de <b>Jogos</b></span></div>
+    <div class="bar-meta">
+      <div class="pill" data-go="players">👤 <b>${S.players.length}</b></div>
+      <div class="pill" data-go="scoreboard">🏆 Placar</div>
+    </div>
+  </div>`;
+}
+
+/* =========================================================
+   TELAS
+========================================================= */
+function viewHome(){
+  return `${bar()}
+  <div class="screen stagger">
+    <div style="margin:14px 0 6px">
+      <h1 style="font-size:46px">Noite de<br><span style="color:var(--red)">Jogos</span></h1>
+      <p class="lead" style="margin-top:12px">Impostor, "qual é a regra" e jogos de sintonia. Método <b style="color:var(--text)">olha e passa</b>: cada um vê seu segredo e passa o celular adiante.</p>
+    </div>
+    <div class="spacer"></div>
+    <button class="btn btn-lime btn-lg" data-action="toPlay">▶ Começar a noite</button>
+    <div class="spacer"></div>
+    <button class="btn btn-ghost" data-go="players">👤 Jogadores ${S.players.length?`(${S.players.length})`:''}</button>
+    <div style="height:9px"></div>
+    <button class="btn btn-ghost" data-go="config">⚙️ Tema, rodadas e tempo</button>
+    <div class="sec-label">Como funciona o placar</div>
+    <div class="note imp">Quando o <b style="color:#ff8298">impostor vence</b> (não é descoberto), ele leva <b>+2</b>. Quando a <b style="color:var(--lime)">cidade vence</b>, cada inocente leva <b>+1</b>. Os pontos somam por jogador a noite inteira — no fim sai o campeão.</div>
+  </div>`;
+}
+
+function viewPlayers(){
+  const list=S.players.map((p,i)=>`
+    <div class="prow">
+      <div class="pnum">${i+1}</div>
+      <div class="pn">${esc(p.name)}</div>
+      <button class="xbtn" data-rm="${i}">✕</button>
+    </div>`).join('');
+  return `${bar()}
+  <div class="screen">
+    <h1 style="font-size:34px;margin-top:6px">Jogadores</h1>
+    <p class="muted" style="margin:8px 0 18px">Adicione todo mundo que vai jogar. O anfitrião dos jogos de regra é sorteado a partir desta lista.</p>
+    <div class="pinput">
+      <input id="pname" placeholder="Nome do jogador" autocomplete="off" maxlength="18">
+      <button class="btn btn-lime btn-sm" data-action="addP" style="padding:14px 18px">Add</button>
+    </div>
+    <div class="plist">${list||'<p class="faint center" style="padding:20px">Ninguém ainda. Bora adicionar.</p>'}</div>
+    <div class="spacer"></div>
+    ${S.players.length>=2?'<button class="btn btn-lime btn-lg" data-action="toPlay">Pronto, vamos jogar ▶</button>':'<p class="faint center">Mínimo 2 jogadores (a maioria dos jogos pede 3+).</p>'}
+  </div>`;
+}
+
+function viewConfig(){
+  const chips=Object.entries(THEMES).map(([k,v])=>`<div class="chip ${S.theme===k?'on':''}" data-theme="${k}">${v.label}</div>`).join('');
+  return `${bar()}
+  <div class="screen">
+    <h1 style="font-size:34px;margin-top:6px">Ajustes</h1>
+    <div class="sec-label">Tema das palavras</div>
+    <p class="muted" style="margin-bottom:12px;font-size:13px">Usado em Palavra Oculta, Personagem Secreto, Coordenada e 3 Pistas.</p>
+    <div class="chips">${chips}</div>
+    <div class="sec-label">Rodadas na noite</div>
+    <div class="stepper" style="max-width:180px">
+      <button data-step="rounds:-1">−</button><div class="val">${S.rounds}</div><button data-step="rounds:1">+</button>
+    </div>
+    <div class="sec-label">Tempo de discussão</div>
+    <div class="stepper" style="max-width:200px">
+      <button data-step="discuss:-30">−</button><div class="val">${fmt(S.discuss)}</div><button data-step="discuss:30">+</button>
+    </div>
+    <div class="spacer"></div><div class="spacer"></div>
+    <button class="btn btn-lime btn-lg" data-go="play">Escolher jogo ▶</button>
+  </div>`;
+}
+
+function viewPlay(){
+  if(S.players.length<2){
+    return `${bar()}<div class="screen center" style="padding-top:40px">
+      <div class="big-emoji">👤</div>
+      <h1 style="font-size:28px;margin:14px 0">Faltam jogadores</h1>
+      <p class="muted" style="margin-bottom:20px">Adicione pelo menos 2 (a maioria dos jogos pede 3).</p>
+      <button class="btn btn-lime btn-lg" data-go="players">Adicionar jogadores</button>
+    </div>`;
+  }
+  const tiles=GAMES.map(g=>{
+    const ok=playable(g);
+    const [cls,lbl]=FAM_TAG[g.fam];
+    return `<div class="tile ${ok?'':'disabled'}" data-game="${g.id}">
+      <div class="emoji">${g.emoji}</div>
+      <div class="tname">${g.name}</div>
+      <div class="tdesc">${g.desc}</div>
+      <div class="tag ${cls}">${lbl} · ${g.min}–${g.max>=99?'∞':g.max}</div>
+      ${ok?'':`<div class="tdesc" style="color:var(--red);margin-top:6px">precisa ${g.min}–${g.max>=99?'∞':g.max} jogadores</div>`}
+    </div>`;
+  }).join('');
+  return `${bar()}
+  <div class="screen">
+    <div class="row" style="margin:6px 0 4px">
+      <h1 style="font-size:30px" class="grow">Rodada ${S.currentRound}<span class="faint" style="font-size:18px">/${S.rounds}</span></h1>
+      <div class="pill" data-go="config">⚙️ ${THEMES[S.theme].label.split(' ')[0]}</div>
+    </div>
+    <button class="btn btn-red btn-lg" data-action="sortear">🎲 Sortear um jogo</button>
+    <div class="sec-label">Ou escolha</div>
+    <div class="grid">${tiles}</div>
+  </div>`;
+}
+
+function viewBriefing(){
+  const g=S.game;const [cls,lbl]=FAM_TAG[g.fam];
+  return `${bar()}
+  <div class="screen stagger">
+    <div class="center" style="margin:18px 0 6px"><div class="big-emoji">${g.emoji}</div></div>
+    <h1 class="center" style="font-size:34px">${g.name}</h1>
+    <div class="center"><span class="tag ${cls}">${lbl}</span></div>
+    <div class="card" style="margin-top:18px">
+      <div class="kicker" style="margin-bottom:8px">Como jogar</div>
+      <p style="line-height:1.6;font-size:15px">${g.rules}</p>
+    </div>
+    ${g.theme?`<div class="note" style="margin-top:12px">Tema atual: <b style="color:var(--text)">${THEMES[S.theme].label}</b> · troque em ⚙️ se quiser.</div>`:''}
+    <div class="spacer"></div>
+    <button class="btn btn-lime btn-lg" data-action="setupRound">Preparar rodada →</button>
+    <div style="height:9px"></div>
+    <button class="btn btn-ghost" data-go="play">← Trocar de jogo</button>
+  </div>`;
+}
+
+/* ---- olha e passa (impostor / escala) ---- */
+function viewReveal(){
+  const g=S.game,r=S.round,i=r.revealIdx,P=S.players;
+  if(i>=P.length){
+    return `${bar()}<div class="screen pass">
+      <div class="big-emoji">✅</div>
+      <h1 style="font-size:30px" class="center">Todos viram!</h1>
+      <p class="muted center">Agora discutam. ${g.fam==='imp'?'Achem o impostor.':'Ordenem o grupo.'}</p>
+      <button class="btn btn-red btn-lg" data-action="toDiscuss">Iniciar discussão ⏱</button>
+    </div>`;
+  }
+  const card=r.cards[i];
+  return `${bar()}<div class="screen pass">
+    <div class="kicker">Jogador ${i+1} de ${P.length}</div>
+    <h1 style="font-size:38px">${esc(P[i].name)}</h1>
+    <p class="muted">Pegue o celular. Toque para ver seu segredo — e não deixe ninguém olhar.</p>
+    <div class="reveal-card hidden" id="rcard" data-action="flip">
+      <div class="big-emoji">👁️</div>
+      <div style="margin-top:10px;font-weight:700">Toque para revelar</div>
+    </div>
+  </div>`;
+}
+function cardInner(card){
+  if(card.q!==undefined){
+    return `<div class="kicker">${card.kicker||''}</div>
+      <div class="big" style="font-size:30px;margin:14px 4px">${esc(card.q)}</div>
+      <p class="muted" style="font-size:13px">${card.sub||''}</p>`;
+  }
+  let listHtml='';
+  if(card.list){
+    listHtml=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 14px;margin:14px 0;width:100%">`+
+      card.list.map((it,k)=>`<div style="font-size:14px;${(k+1)==card.num?'color:var(--lime);font-weight:700':'color:var(--muted)'}">${k+1}. ${esc(it)}</div>`).join('')+`</div>`;
+  }
+  const bigCls=card.type==='imp'?'imp':'cid';
+  return `<div class="kicker">${card.kicker||''}</div>
+    <div class="big ${bigCls}">${card.big}</div>
+    ${listHtml}
+    <p class="muted" style="font-size:13.5px;max-width:300px">${card.sub||''}</p>`;
+}
+
+/* ---- regra: anfitrião vê ---- */
+function viewHostReveal(){
+  const r=S.round,host=S.players[r.host];
+  return `${bar()}<div class="screen pass">
+    <div class="kicker">Anfitrião sorteado</div>
+    <h1 style="font-size:40px">${esc(host.name)}</h1>
+    <p class="muted">${esc(host.name)}, pegue o celular. Só você pode ver a regra secreta.</p>
+    <div class="reveal-card hidden" id="rcard" data-action="flipHost">
+      <div class="big-emoji">🤫</div>
+      <div style="margin-top:10px;font-weight:700">Toque para ver a regra</div>
+    </div>
+    <button class="btn btn-ghost btn-sm" data-action="reHost">🎲 Sortear outro anfitrião</button>
+  </div>`;
+}
+
+/* ---- 3 pistas: clue giver vê ---- */
+function viewClueReveal(){
+  const r=S.round,cg=S.players[r.clueGiver];
+  return `${bar()}<div class="screen pass">
+    <div class="kicker">Quem dá as pistas</div>
+    <h1 style="font-size:38px">${esc(cg.name)}</h1>
+    <p class="muted">Só ${esc(cg.name)} vê o conceito. Dê 3 palavras como pista, uma de cada vez.</p>
+    <div class="reveal-card hidden" id="rcard" data-action="flipClue">
+      <div class="big-emoji">🧩</div>
+      <div style="margin-top:10px;font-weight:700">Toque para ver o conceito</div>
+    </div>
+    <button class="btn btn-ghost btn-sm" data-action="reClue">🎲 Outro jogador</button>
+  </div>`;
+}
+
+/* ---- botao: cenario ---- */
+function viewBotao(){
+  const r=S.round;
+  return `${bar()}<div class="screen stagger">
+    <div class="center" style="margin:16px 0"><div class="big-emoji">🔘</div></div>
+    <h1 class="center" style="font-size:30px">Aperta ou não?</h1>
+    <div class="card" style="margin-top:16px;border-left:3px solid var(--gold)">
+      <p style="font-size:18px;line-height:1.55">${esc(r.scenario)}</p>
+    </div>
+    <div class="note" style="margin-top:14px">Cada um vota e defende seu lado. Opcional: dêem +1 ao melhor argumento no fim.</div>
+    <div class="spacer"></div>
+    <button class="btn btn-red btn-lg" data-action="toDiscuss">Debater ⏱</button>
+    <div style="height:9px"></div>
+    <button class="btn btn-ghost" data-action="finishNoScore">Pular pontuação e seguir →</button>
+  </div>`;
+}
+
+/* ---- discussão / timer ---- */
+let timerInt=null;
+function viewDiscuss(){
+  const left=S.round.timeLeft;
+  const warn=left<=15;
+  return `${bar()}<div class="screen center">
+    <div class="kicker" style="margin-top:14px">${S.game.fam==='imp'?'Discussão — achem o impostor':'Discussão'}</div>
+    <div class="timer-wrap">
+      <div class="timer ${warn?'warn':''}" id="timer">${fmt(left)}</div>
+    </div>
+    <div class="row" style="gap:9px">
+      <button class="btn btn-ghost grow" data-action="timerToggle" id="ttg">${S.round.paused?'▶ Continuar':'⏸ Pausar'}</button>
+      <button class="btn btn-ghost grow" data-action="addTime">+30s</button>
+    </div>
+    <div class="spacer"></div>
+    <button class="btn btn-red btn-lg" data-action="toResolve">Encerrar e resolver →</button>
+  </div>`;
+}
+function tickStart(){
+  clearInterval(timerInt);
+  timerInt=setInterval(()=>{
+    if(S.screen!=='discuss'){clearInterval(timerInt);return;}
+    if(S.round.paused)return;
+    S.round.timeLeft--;
+    const el=$('#timer');
+    if(el){el.textContent=fmt(Math.max(0,S.round.timeLeft));el.classList.toggle('warn',S.round.timeLeft<=15);}
+    if(S.round.timeLeft<=0){clearInterval(timerInt);if(navigator.vibrate)navigator.vibrate([200,100,200]);}
+  },1000);
+}
+
+/* ---- resolução ---- */
+function viewResolve(){
+  const g=S.game,r=S.round;
+  if(g.fam==='imp'){
+    const impNames=r.impostors.map(i=>S.players[i].name).join(' e ');
+    let extra='';
+    if(g.id==='palavra'||g.id==='personagem'||g.id==='duplo')extra=`A palavra era <b style="color:var(--lime)">${esc(r.secretWord)}</b>.`;
+    if(g.id==='coordenada')extra=`Cidade no nº <b style="color:var(--lime)">${r.realN}</b>, impostor no nº <b style="color:var(--red)">${r.impN}</b>.`;
+    if(g.id==='invertida')extra=`Pergunta da cidade: "${esc(r.pair[0])}". Do impostor: "${esc(r.pair[1])}".`;
+    return `${bar()}<div class="screen center">
+      <div class="kicker" style="margin-top:14px">Quem era?</div>
+      <div class="big-emoji" style="margin:14px 0">🕵️</div>
+      <h1 style="font-size:30px;color:var(--red)">${esc(impNames)}</h1>
+      <p class="muted" style="margin:10px 0 4px">${r.impostors.length>1?'eram os impostores':'era o impostor'}</p>
+      <p class="muted" style="font-size:14px">${extra}</p>
+      <div class="sec-label">A cidade descobriu?</div>
+      <button class="btn btn-lime btn-lg" data-action="res:cidade">✅ Cidade venceu (+1 por inocente)</button>
+      <div style="height:10px"></div>
+      <button class="btn btn-red btn-lg" data-action="res:impostor">😈 Impostor escapou (+2)</button>
+    </div>`;
+  }
+  if(g.fam==='reg'){
+    const sel=r.regSel||[];
+    const opts=S.players.map((p,i)=>`<button class="btn ${sel.includes(i)?'btn-lime':'btn-ghost'}" data-action="regToggle:${i}" style="margin-bottom:8px">${sel.includes(i)?'✓ ':''}${esc(p.name)}</button>`).join('');
+    return `${bar()}<div class="screen">
+      <h1 style="font-size:28px;margin-top:10px" class="center">A regra era:</h1>
+      <div class="note" style="margin:14px 0">${g.secret}</div>
+      <div class="sec-label">Quem descobriu? (marque todos que acertaram)</div>
+      ${opts}
+      <div class="spacer"></div>
+      <button class="btn btn-lime btn-lg" data-action="regConfirm" ${sel.length?'':'disabled'}>Confirmar — +1 para ${sel.length} jogador${sel.length===1?'':'es'} →</button>
+      <div style="height:9px"></div>
+      <button class="btn btn-red" data-action="res:reg:host">Ninguém descobriu — anfitrião (${esc(S.players[r.host].name)}) +2</button>
+    </div>`;
+  }
+  if(g.id==='escala'){
+    const order=r.cards.map((c,i)=>({n:S.players[i].name,v:+c.big})).sort((a,b)=>a.v-b.v)
+      .map(o=>`<div class="prow"><div class="pn">${esc(o.n)}</div><div class="sp" style="font-size:18px;color:var(--lime)">${o.v}</div></div>`).join('');
+    return `${bar()}<div class="screen">
+      <h1 style="font-size:26px;margin-top:10px" class="center">Ordem real (menor → maior)</h1>
+      <p class="muted center" style="margin:6px 0 14px">${esc(r.prompt)}</p>
+      <div class="plist">${order}</div>
+      <div class="sec-label">O grupo acertou a ordem?</div>
+      <button class="btn btn-lime btn-lg" data-action="res:escala:1">✅ Acertaram (todos +1)</button>
+      <div style="height:9px"></div>
+      <button class="btn btn-ghost" data-action="res:escala:0">❌ Erraram (0 ponto)</button>
+    </div>`;
+  }
+  if(g.id==='pistas'){
+    const cg=S.players[r.clueGiver].name;
+    const opts=S.players.map((p,i)=>i===r.clueGiver?'':`<button class="btn btn-ghost" data-action="res:pistas:${i}" style="margin-bottom:8px">${esc(p.name)} acertou (+1 p/ ele e ${esc(cg)})</button>`).join('');
+    return `${bar()}<div class="screen">
+      <h1 style="font-size:26px;margin-top:10px" class="center">O conceito era:</h1>
+      <div class="reveal-card shown cidade" style="min-height:auto;margin:14px 0;padding:24px"><div class="big cid">${esc(r.concept)}</div></div>
+      <div class="sec-label">Alguém acertou?</div>
+      ${opts}
+      <button class="btn btn-red" data-action="res:pistas:none">Ninguém acertou (0 ponto)</button>
+    </div>`;
+  }
+  return '';
+}
+
+/* ---- placar ---- */
+function viewScoreboard(back){
+  const sorted=[...S.players].map((p,i)=>({...p,i})).sort((a,b)=>b.score-a.score);
+  const rows=sorted.map((p,k)=>`
+    <div class="srow ${k===0&&p.score>0?'top1':''}">
+      <div class="rank">${k===0&&p.score>0?'👑':k+1}</div>
+      <div class="sn">${esc(p.name)}</div>
+      <div class="sp">${p.score}</div>
+    </div>`).join('');
+  return `${bar()}<div class="screen">
+    <h1 style="font-size:32px;margin-top:6px">Placar</h1>
+    <p class="muted" style="margin:8px 0 18px">Rodada ${S.currentRound} de ${S.rounds}.</p>
+    ${rows||'<p class="faint center" style="padding:30px">Sem jogadores ainda.</p>'}
+    <div class="spacer"></div>
+    <button class="btn btn-ghost" data-go="${back||'play'}">← Voltar</button>
+  </div>`;
+}
+
+function viewChampion(){
+  const sorted=[...S.players].map((p,i)=>({...p,i})).sort((a,b)=>b.score-a.score);
+  const champ=sorted[0];
+  const rows=sorted.slice(1).map((p,k)=>`
+    <div class="srow"><div class="rank">${k+2}</div><div class="sn">${esc(p.name)}</div><div class="sp">${p.score}</div></div>`).join('');
+  return `${bar()}<div class="screen center">
+    <div class="confetti" id="conf"></div>
+    <div class="kicker" style="margin-top:20px">Campeão da noite</div>
+    <div class="big-emoji" style="margin:16px 0;font-size:70px">🏆</div>
+    <h1 style="font-size:46px;color:var(--gold)">${esc(champ?champ.name:'—')}</h1>
+    <p class="muted" style="margin:8px 0 24px">${champ?champ.score:0} pontos</p>
+    <div style="text-align:left">${rows}</div>
+    <div class="spacer"></div>
+    <button class="btn btn-lime btn-lg" data-action="newNight">🔁 Nova noite (zerar placar)</button>
+    <div style="height:9px"></div>
+    <button class="btn btn-ghost" data-action="moreRounds">➕ Jogar mais 3 rodadas</button>
+  </div>`;
+}
+
+/* =========================================================
+   RENDER PRINCIPAL
+========================================================= */
+function render(){
+  let html='';
+  switch(S.screen){
+    case 'home':html=viewHome();break;
+    case 'players':html=viewPlayers();break;
+    case 'config':html=viewConfig();break;
+    case 'play':html=viewPlay();break;
+    case 'briefing':html=viewBriefing();break;
+    case 'reveal':html=viewReveal();break;
+    case 'hostReveal':html=viewHostReveal();break;
+    case 'clueReveal':html=viewClueReveal();break;
+    case 'botao':html=viewBotao();break;
+    case 'discuss':html=viewDiscuss();break;
+    case 'resolve':html=viewResolve();break;
+    case 'scoreboard':html=viewScoreboard('play');break;
+    case 'champion':html=viewChampion();break;
+  }
+  app.innerHTML=html;
+  if(S.screen==='discuss')tickStart();
+  if(S.screen==='players'){const inp=$('#pname');if(inp){inp.focus();inp.onkeydown=e=>{if(e.key==='Enter')addPlayer();};}}
+  if(S.screen==='champion')confetti();
+}
+
+/* =========================================================
+   AÇÕES
+========================================================= */
+function addPlayer(){
+  const inp=$('#pname');if(!inp)return;
+  const name=inp.value.trim();
+  if(!name)return;
+  S.players.push({name,score:0});
+  render();
+}
+
+function setupRound(){
+  buildRound();
+  const g=S.game;
+  if(g.fam==='imp'||g.id==='escala')go('reveal');
+  else if(g.fam==='reg')go('hostReveal');
+  else if(g.id==='pistas')go('clueReveal');
+  else if(g.id==='botao')go('botao');
+}
+
+function applyResolve(action){
+  const g=S.game,r=S.round;
+  const parts=action.split(':');
+  if(g.fam==='imp'){
+    if(parts[1]==='cidade'){const inn=S.players.map((_,i)=>i).filter(i=>!r.impostors.includes(i));award(inn,1);}
+    else{award(r.impostors,2);}
+  } else if(g.fam==='reg'){
+    if(parts[2]==='host')award([r.host],2);
+    else award([+parts[2]],1);
+  } else if(g.id==='escala'){
+    if(parts[2]==='1')award(S.players.map((_,i)=>i),1);
+  } else if(g.id==='pistas'){
+    if(parts[2]!=='none'){award([+parts[2],r.clueGiver],1);}
+  }
+  nextRoundOrEnd();
+}
+
+document.addEventListener('click',(e)=>{
+  const t=e.target.closest('[data-action],[data-go],[data-game],[data-rm],[data-theme],[data-step]');
+  if(!t)return;
+
+  if(t.dataset.go){go(t.dataset.go);return;}
+  if(t.dataset.rm!==undefined){S.players.splice(+t.dataset.rm,1);render();return;}
+  if(t.dataset.theme){S.theme=t.dataset.theme;render();return;}
+  if(t.dataset.step){
+    const [k,d]=t.dataset.step.split(':');const dv=+d;
+    if(k==='rounds')S.rounds=Math.max(1,Math.min(30,S.rounds+dv));
+    if(k==='discuss')S.discuss=Math.max(30,Math.min(600,S.discuss+dv));
+    render();return;
+  }
+  if(t.dataset.game){
+    const g=GAMES.find(x=>x.id===t.dataset.game);
+    if(g&&playable(g))startGame(g);
+    return;
+  }
+
+  const a=t.dataset.action;
+  switch(true){
+    case a==='toPlay':go(S.players.length>=2?'play':'players');break;
+    case a==='addP':addPlayer();break;
+    case a==='sortear':{
+      const pool=GAMES.filter(playable);
+      if(!pool.length)return;
+      startGame(pool[rnd(pool.length)]);
+      break;
+    }
+    case a==='setupRound':setupRound();break;
+    case a==='flip':{
+      const c=$('#rcard');const card=S.round.cards[S.round.revealIdx];
+      if(c.classList.contains('hidden')){
+        c.className='reveal-card shown '+(card.type==='imp'?'impostor':'cidade')+' flip-in';
+        c.innerHTML=cardInner(card)+'<div style="margin-top:18px"><button class="btn btn-ghost btn-sm" data-action="nextReveal">Já vi — próximo →</button></div>';
+      }
+      break;
+    }
+    case a==='nextReveal':S.round.revealIdx++;render();break;
+    case a==='flipHost':{
+      const c=$('#rcard');
+      c.className='reveal-card shown cidade flip-in';
+      c.innerHTML=`<div class="kicker">Regra secreta</div><p style="font-size:16px;line-height:1.55;margin-top:12px">${S.game.secret}</p><div style="margin-top:18px"><button class="btn btn-lime btn-sm" data-action="toDiscuss">Entendi — começar ⏱</button></div>`;
+      break;
+    }
+    case a==='reHost':S.round.host=rnd(S.players.length);render();break;
+    case a==='flipClue':{
+      const c=$('#rcard');
+      c.className='reveal-card shown cidade flip-in';
+      c.innerHTML=`<div class="kicker">Conceito secreto</div><div class="big cid" style="font-size:34px;margin:12px 0">${esc(S.round.concept)}</div><p class="muted" style="font-size:13px">Dê 3 pistas, uma de cada vez.</p><div style="margin-top:16px"><button class="btn btn-lime btn-sm" data-action="toDiscuss">Começar ⏱</button></div>`;
+      break;
+    }
+    case a==='reClue':S.round.clueGiver=rnd(S.players.length);render();break;
+    case a==='toDiscuss':S.round.timeLeft=S.discuss;S.round.paused=false;go('discuss');break;
+    case a==='timerToggle':S.round.paused=!S.round.paused;$('#ttg').textContent=S.round.paused?'▶ Continuar':'⏸ Pausar';break;
+    case a==='addTime':S.round.timeLeft+=30;$('#timer').textContent=fmt(S.round.timeLeft);break;
+    case a==='toResolve':clearInterval(timerInt);go('resolve');break;
+    case a==='finishNoScore':nextRoundOrEnd();break;
+    case a&&a.startsWith('regToggle:'):{
+      const i=+a.split(':')[1];
+      if(!S.round.regSel)S.round.regSel=[];
+      const k=S.round.regSel.indexOf(i);
+      if(k>=0)S.round.regSel.splice(k,1);else S.round.regSel.push(i);
+      render();break;
+    }
+    case a==='regConfirm':{
+      const sel=S.round.regSel||[];
+      if(!sel.length)break;
+      award(sel,1);
+      nextRoundOrEnd();break;
+    }
+    case a&&a.startsWith('res:'):applyResolve(a);break;
+    case a==='newNight':S.players.forEach(p=>p.score=0);S.currentRound=1;S.game=null;S.round=null;go('home');break;
+    case a==='moreRounds':S.rounds+=3;S.currentRound++;S.game=null;S.round=null;go('play');break;
+  }
+});
+
+function confetti(){
+  const c=$('#conf');if(!c)return;
+  const cols=['#ffcb45','#c6f24e','#ff3b5c','#8ec0ff','#fff'];
+  for(let i=0;i<70;i++){
+    const d=document.createElement('div');d.className='conf';
+    d.style.left=Math.random()*100+'%';
+    d.style.background=cols[rnd(cols.length)];
+    d.style.animationDuration=(2+Math.random()*2.5)+'s';
+    d.style.animationDelay=Math.random()*1.2+'s';
+    d.style.transform='rotate('+rnd(360)+'deg)';
+    c.appendChild(d);
+  }
+  setTimeout(()=>{if(c)c.innerHTML='';},5000);
+}
+
+render();
+</script>
+</body>
+</html>
