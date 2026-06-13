@@ -73,6 +73,8 @@
   .tag.reg{background:rgba(198,242,78,.16);color:var(--lime)}
   .tag.esc{background:rgba(120,180,255,.16);color:#8ec0ff}
   .tag.deb{background:rgba(255,203,69,.16);color:var(--gold)}
+  .tag.maf{background:rgba(168,130,255,.16);color:#bda4ff}
+  .tag.perf{background:rgba(95,217,194,.16);color:#5fd9c2}
   .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .chips{display:flex;flex-wrap:wrap;gap:8px}
   .chip{font-size:13px;font-weight:600;padding:9px 12px;border-radius:12px;background:var(--surface);border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:.15s}
@@ -241,42 +243,91 @@ const OPINIOES = [
   'Viajar sozinho é melhor que viajar acompanhado.',
 ];
 
+const INUTIL = [
+  'Cereal é sopa?',
+  'Água com gás é pior que refrigerante?',
+  'Dormir sem coberta deveria ser crime?',
+  'Pizza doce deveria ser proibida?',
+  'Tomate é fruta, então ketchup é suco?',
+  'Segunda-feira deveria ser ilegal?',
+  'Tomar banho de chinelo faz sentido?',
+  'Dormir tarde é sinal de inteligência?',
+  'Dinheiro traz felicidade — sim ou não?',
+  'Chocolate na geladeira é errado?',
+  'Hot dog é um sanduíche?',
+  'Abacaxi tem direito de existir?',
+  'Cantar no banho conta como talento?',
+  'Quem acorda cedo é melhor pessoa?',
+];
+
+const PERSONAGENS = [
+  'Um milionário arrogante',
+  'Um vilão de filme',
+  'Um coach motivacional exagerado',
+  'Um jogador de futebol famoso',
+  'Um alien tentando se passar por humano',
+  'Um idoso rabugento',
+  'Um influencer fake',
+  'Um político em crise',
+  'Um filósofo profundo demais',
+  'Um atendente sem nenhuma paciência',
+  'Um detetive durão dos anos 80',
+  'Uma celebridade que finge humildade',
+  'Um robô que descobriu sentimentos',
+  'Um pirata aposentado',
+];
+
+const ENTREVISTA_Q = [
+  'Qual seu maior objetivo na vida?',
+  'O que você acha das pessoas comuns?',
+  'Como você lida com o fracasso?',
+  'Qual é o seu maior segredo?',
+  'O que te tira do sério?',
+  'Onde você se vê em 10 anos?',
+  'Qual foi o pior dia da sua vida?',
+  'Se pudesse mudar uma coisa no mundo, qual seria?',
+  'Quem é seu maior inimigo?',
+  'O que ninguém entende sobre você?',
+];
+
+const HIST_WORDS = [
+  'Dinheiro','Polícia','Segredo','Elevador','Mensagem','Cachorro','Relógio','Assalto',
+  'Internet','Fantasma','Restaurante','Chuva','Porta','Fuga','Celular','Vizinho',
+  'Hospital','Viagem','Música','Escuridão','Dinossauro','Investimentos','Karaokê',
+  'Meia perdida','Cebola','Wi-Fi','Cupom','Tartaruga','Boleto','Confete',
+];
+
 const GAMES = [
-  {id:'palavra', fam:'imp', emoji:'😶', name:'Palavra Oculta', min:3, max:14, theme:true,
-   desc:'Todos sabem a palavra. Um não. Achem o impostor.',
-   rules:'Todos os jogadores recebem a MESMA palavra secreta, menos o impostor, que não recebe nada. Cada um, na sua vez, fala UMA palavra relacionada ao tema sem entregar a palavra exata. O impostor blefa tentando se misturar. No fim, todos discutem e votam em quem acham que é o impostor.'},
+  {id:'camaleao', fam:'imp', emoji:'🦎', name:'Camaleão', min:3, max:14, theme:true,
+   desc:'Todos recebem o mesmo segredo. O camaleão, não. Achem ele.',
+   rules:'Todos os jogadores recebem a MESMA palavra/personagem secreto, menos o camaleão, que não recebe nada e precisa se misturar. Cada um, na sua vez, fala UMA palavra ou dá uma pista sutil ligada ao segredo, sem entregá-lo. O camaleão blefa improvisando em cima do que os outros dizem. No fim, todos discutem e votam em quem acham que é o camaleão.'},
   {id:'invertida', fam:'imp', emoji:'🔄', name:'Pergunta Invertida', min:3, max:12, theme:false,
    desc:'Mesma pergunta pra todos. O impostor recebe outra parecida.',
    rules:'A maioria recebe uma pergunta. O impostor recebe uma pergunta PARECIDA, mas diferente — e nem sabe que a dele mudou. Todos respondem em voz alta. A resposta do impostor vai soar levemente fora de contexto. Discutam e votem.'},
   {id:'coordenada', fam:'imp', emoji:'🎯', name:'Coordenada Errada', min:3, max:12, theme:true,
    desc:'Todos veem a mesma lista. Um recebe o número errado.',
    rules:'Todos veem a mesma lista de itens numerados. A cidade recebe o MESMO número secreto; o impostor recebe um número DIFERENTE (e não sabe). Cada um fala uma palavra ligada ao SEU item. Quem estiver no item errado vai se entregar. Discutam e votem.'},
-  {id:'personagem', fam:'imp', emoji:'🎭', name:'Personagem Secreto', min:3, max:14, theme:true,
-   desc:'Todos recebem o mesmo personagem. O impostor, nada.',
-   rules:'Todos recebem o mesmo personagem/coisa secreta. O impostor não recebe e precisa fingir que recebeu. Cada um dá uma pista sutil sobre o personagem. O impostor improvisa em cima do que os outros disseram. Votem no impostor.'},
   {id:'duplo', fam:'imp', emoji:'🕵️', name:'Duplo Impostor', min:5, max:16, theme:true, impostors:2,
-   desc:'Como Palavra Oculta, mas com DOIS impostores que não se conhecem.',
-   rules:'Igual à Palavra Oculta, mas existem DOIS impostores, e eles não sabem quem é o outro. Eles podem até se acusar pra desviar a atenção. A cidade precisa achar os dois. Caos garantido.'},
-  {id:'banquete', fam:'reg', emoji:'👑', name:'O Banquete do Rei', min:3, max:12,
-   desc:'Só o anfitrião sabe a regra secreta.',
-   rules:'Cada jogador diz o que vai levar ao banquete. O anfitrião responde só "Pode" ou "Não pode". Os jogadores tentam descobrir o padrão.',
-   secret:'REGRA SECRETA: o item só é aceito se começar com a ÚLTIMA letra do nome do jogador da vez. (Ex.: "Ana" termina em A → pode levar "Arroz".)'},
-  {id:'tempo', fam:'reg', emoji:'⏳', name:'Viagem no Tempo', min:3, max:12,
-   desc:'Só o anfitrião sabe a regra secreta.',
-   rules:'Cada jogador diz o que vai levar na viagem no tempo. O anfitrião responde "Pode" ou "Não pode". Descubram o padrão.',
-   secret:'REGRA SECRETA: só pode levar coisas que NÃO existiam em 1900 (tecnologia moderna). Dica de mestre: a palavra "tempo" induz todos a pensar em relógios — deixe.'},
-  {id:'gestos', fam:'reg', emoji:'🤙', name:'O Clube dos Gestos', min:3, max:12,
-   desc:'Só o anfitrião sabe a regra secreta.',
-   rules:'Cada jogador tenta entrar no clube falando uma frase. O anfitrião diz se entrou ou não. A palavra não importa.',
-   secret:'REGRA SECRETA: o jogador só entra se fizer um GESTO físico enquanto fala (coçar a cabeça, cruzar os braços, tocar o rosto). Quem fala parado é rejeitado.'},
-  {id:'cores', fam:'reg', emoji:'🎨', name:'O Piquenique das Cores', min:3, max:12,
-   desc:'Só o anfitrião sabe a regra secreta.',
-   rules:'Cada jogador diz o que vai levar ao piquenique. O anfitrião responde "Pode" ou "Não pode".',
-   secret:'REGRA SECRETA: o objeto só é aceito se a cor dele combinar com a cor da ROUPA que o jogador da vez está vestindo.'},
-  {id:'fronteira', fam:'reg', emoji:'🛂', name:'Fronteira sem "E"', min:3, max:12,
-   desc:'Só o anfitrião sabe a regra secreta.',
-   rules:'Cada jogador diz o que vai levar para passar a fronteira. O anfitrião responde "Pode" ou "Não pode".',
-   secret:'REGRA SECRETA: só passa a palavra que NÃO contém a letra "E". (Ex.: "carro" pode, "caminhonete" não.)'},
+   desc:'Como o Camaleão, mas com DOIS impostores que não se conhecem.',
+   rules:'Igual ao Camaleão, mas existem DOIS impostores, e eles não sabem quem é o outro. Eles podem até se acusar pra desviar a atenção. A cidade precisa achar os dois. Caos garantido.'},
+  {id:'mafia', fam:'maf', emoji:'🔪', name:'Máfia', min:5, max:16,
+   desc:'Dedução social. Máfia x Cidade, noite e dia, até alguém vencer. O celular é o narrador.',
+   rules:'O celular distribui os papéis e conduz tudo — ninguém fica de fora como mestre. À NOITE, o aparelho passa por cada vivo (cidadãos veem só "durma"): a Máfia escolhe quem matar, o Detetive investiga um jogador, o Médico protege alguém. DE DIA, o grupo descobre quem morreu (ou se foi salvo) e debate. Depois votam em quem linchar. A Cidade vence quando elimina toda a Máfia; a Máfia vence quando empata ou supera a Cidade em número. Vale como uma rodada da noite: a facção vencedora leva +2.'},
+  {id:'adivinhe', fam:'reg', emoji:'🕵️‍♂️', name:'Adivinhe a Regra', min:3, max:12,
+   desc:'Só o anfitrião sabe a regra secreta. O grupo descobre o padrão.',
+   rules:'O celular sorteia um cenário e uma regra secreta — só o anfitrião vê a regra. Cada jogador, na sua vez, diz algo dentro do cenário (ex.: o que levaria ao banquete). O anfitrião responde só "Pode" ou "Não pode", seguindo a regra à risca. O grupo tenta descobrir o padrão. Quem descobrir pontua; se ninguém descobrir, o anfitrião pontua.',
+   variants:[
+     {name:'O Banquete do Rei 👑', prompt:'Cada um diz o que levaria ao banquete do rei. O anfitrião responde "Pode" ou "Não pode".',
+      secret:'REGRA SECRETA: o item só é aceito se começar com a ÚLTIMA letra do nome do jogador da vez. (Ex.: "Ana" termina em A → pode levar "Arroz".)'},
+     {name:'Viagem no Tempo ⏳', prompt:'Cada um diz o que levaria numa viagem no tempo. O anfitrião responde "Pode" ou "Não pode".',
+      secret:'REGRA SECRETA: só pode levar coisas que NÃO existiam em 1900 (tecnologia moderna). Dica: a palavra "tempo" induz todos a pensar em relógios — deixe.'},
+     {name:'O Clube dos Gestos 🤙', prompt:'Cada um tenta entrar no clube falando uma frase. O anfitrião diz se entrou ou não. A palavra não importa.',
+      secret:'REGRA SECRETA: o jogador só entra se fizer um GESTO físico enquanto fala (coçar a cabeça, cruzar os braços, tocar o rosto). Quem fala parado é rejeitado.'},
+     {name:'O Piquenique das Cores 🎨', prompt:'Cada um diz o que levaria ao piquenique. O anfitrião responde "Pode" ou "Não pode".',
+      secret:'REGRA SECRETA: o objeto só é aceito se a cor dele combinar com a cor da ROUPA que o jogador da vez está vestindo.'},
+     {name:'Fronteira sem "E" 🛂', prompt:'Cada um diz o que levaria para passar a fronteira. O anfitrião responde "Pode" ou "Não pode".',
+      secret:'REGRA SECRETA: só passa a palavra que NÃO contém a letra "E". (Ex.: "carro" pode, "caminhonete" não.)'},
+   ]},
   {id:'escala', fam:'esc', emoji:'📊', name:'Escala Oculta', min:3, max:10, scale:true,
    desc:'Cada um recebe um número 1–10 em segredo. Ordenem o grupo.',
    rules:'Cada jogador recebe um número secreto de 1 a 10 sobre um tema (ex.: "nível de irritação no trânsito"). Cada um dá um exemplo da intensidade do seu número, SEM dizer o número. O grupo tenta ordenar todos do menor para o maior. Acertou a ordem inteira, todos pontuam.'},
@@ -289,9 +340,18 @@ const GAMES = [
   {id:'opiniao', fam:'deb', emoji:'⚖️', name:'Concorda ou Discorda', min:3, max:99,
    desc:'Uma opinião polêmica. Cada lado defende o seu.',
    rules:'O anfitrião lê a afirmação. Cada um se declara "concordo" ou "discordo" e defende seu lado. Sem ficar em cima do muro. Opcional: +1 ao argumento mais convincente da rodada.'},
+  {id:'inutil', fam:'deb', emoji:'🤪', name:'Debate Inútil', min:2, max:99,
+   desc:'Tema idiota. Defenda o absurdo com a maior seriedade possível.',
+   rules:'O celular sorteia um tema idiota. Cada um pega (ou sorteia) um lado e defende com argumentos SÉRIOS — lógica, emoção ou "fake ciência" valem. Não pode repetir argumento. Você ganha ponto se o outro rir ou ficar sem resposta. No fim, o grupo dá +1 a quem foi mais convincente (ou ridículo o suficiente).'},
+  {id:'entrevista', fam:'perf', emoji:'🎤', name:'Entrevista Invertida', min:3, max:14,
+   desc:'Um responde como um personagem secreto. O grupo entrevista.',
+   rules:'Um jogador é sorteado e recebe um personagem secreto (só ele vê). O resto do grupo faz perguntas — o celular sugere algumas — e o entrevistado responde SEM sair do personagem. Se quebrar o personagem, perde; se for convincente e engraçado, pontua. A cada rodada um novo jogador entra no banco dos entrevistados.'},
+  {id:'historia', fam:'perf', emoji:'🧩', name:'História em Turnos', min:2, max:99,
+   desc:'Criem uma história juntos. Cada turno vem com uma palavra obrigatória.',
+   rules:'O grupo monta uma história, um de cada vez. A cada turno o celular dá uma PALAVRA OBRIGATÓRIA que precisa entrar na frase (natural ou zoada) — e a frase tem que dar continuidade ao que veio antes. Você tem ~15s; travou ou ignorou a palavra, perde a vez. Quanto mais inesperada a entrada da palavra, melhor. Joguem umas 2 voltas e encerrem.'},
 ];
 
-const FAM_TAG = {imp:['imp','Impostor'], reg:['reg','Qual é a regra'], esc:['esc','Sintonia'], deb:['deb','Debate']};
+const FAM_TAG = {imp:['imp','Impostor'], reg:['reg','Qual é a regra'], esc:['esc','Sintonia'], deb:['deb','Debate'], maf:['maf','Dedução'], perf:['perf','Atuação']};
 
 /* =========================================================
    ESTADO + PERSISTÊNCIA
@@ -299,7 +359,7 @@ const FAM_TAG = {imp:['imp','Impostor'], reg:['reg','Qual é a regra'], esc:['es
 let S = {
   screen:'home', players:[], theme:'geral', rounds:5, discuss:120,
   currentRound:1, customWords:[], game:null, round:null,
-  lastGameId:null, lastWord:null,
+  lastGameId:null, lastWord:null, maf:null, hist:null,
 };
 const SAVE_KEY='noiteJogos.v2';
 function save(){
@@ -367,25 +427,19 @@ function buildRound(){
     const nImp=g.impostors||1;
     const impSet=shuffle([...Array(n).keys()]).slice(0,nImp);
     r.impostors=impSet; r.cards=[];
-    if(g.id==='palavra'||g.id==='duplo'){
+    if(g.id==='camaleao'||g.id==='duplo'){
       const word=pickWord(items); r.secretWord=word;
+      const impLabel=g.id==='duplo'?'IMPOSTOR':'CAMALEÃO';
       for(let i=0;i<n;i++){
         r.cards.push(impSet.includes(i)
-          ? {type:'imp', big:'VOCÊ É O<br>IMPOSTOR', sub:'Descubra a palavra secreta sem se entregar.'}
-          : {type:'cid', kicker:'A palavra é', big:word, sub:'Dê uma pista sutil. Não entregue a palavra.'});
-      }
-    } else if(g.id==='personagem'){
-      const word=pickWord(items); r.secretWord=word;
-      for(let i=0;i<n;i++){
-        r.cards.push(impSet.includes(i)
-          ? {type:'imp', big:'VOCÊ É O<br>IMPOSTOR', sub:'Você NÃO recebeu personagem. Finja que recebeu.'}
-          : {type:'cid', kicker:'Seu personagem', big:word, sub:'Dê pistas sutis sobre ele.'});
+          ? {type:'imp', big:`VOCÊ É O<br>${impLabel}`, sub:'Você não recebeu o segredo. Misture-se sem se entregar.'}
+          : {type:'cid', kicker:'O segredo é', big:word, sub:'Dê uma pista sutil. Não entregue o segredo.'});
       }
     } else if(g.id==='invertida'){
       const pair=QPAIRS[rnd(QPAIRS.length)]; r.pair=pair;
       for(let i=0;i<n;i++){
         r.cards.push({type:'cid', kicker:'Sua pergunta', big:'❓',
-          q: impSet.includes(i)?pair[1]:pair[0], sub:'Responda em voz alta na sua vez.'});
+          q: impSet.includes(i)?pair[1]:pair[0], sub:'Leia em segredo e diga sua resposta em voz alta agora.'});
       }
     } else if(g.id==='coordenada'){
       const k=Math.min(6, Math.max(2, items.length));
@@ -399,7 +453,11 @@ function buildRound(){
       }
     }
   }
-  else if(g.fam==='reg'){ r.host=rnd(n); r.secret=g.secret; }
+  else if(g.fam==='reg'){
+    r.host=rnd(n);
+    if(g.variants){ const v=g.variants[rnd(g.variants.length)]; r.secret=v.secret; r.scenario={name:v.name,prompt:v.prompt}; }
+    else { r.secret=g.secret; }
+  }
   else if(g.id==='escala'){
     const prompt=SCALE_PROMPTS[rnd(SCALE_PROMPTS.length)]; r.prompt=prompt;
     const nums=shuffle([...Array(10).keys()].map(x=>x+1)).slice(0,n);
@@ -408,6 +466,8 @@ function buildRound(){
   else if(g.id==='pistas'){ r.clueGiver=rnd(n); r.concept=pickWord(items); }
   else if(g.id==='botao'){ r.debate={head:'Aperta ou não?',text:BOTAO[rnd(BOTAO.length)]}; }
   else if(g.id==='opiniao'){ r.debate={head:'Concorda ou discorda?',text:OPINIOES[rnd(OPINIOES.length)]}; }
+  else if(g.id==='inutil'){ r.debate={head:'Defenda o absurdo:',text:INUTIL[rnd(INUTIL.length)]}; }
+  else if(g.id==='entrevista'){ r.performer=rnd(n); r.character=PERSONAGENS[rnd(PERSONAGENS.length)]; r.questions=shuffle(ENTREVISTA_Q).slice(0,5); }
   S.round=r;
 }
 
@@ -562,6 +622,18 @@ function viewBriefing(){
 function viewReveal(){
   const g=S.game,r=S.round,i=r.revealIdx,P=S.players;
   if(i>=P.length){
+    if(g.id==='invertida'){
+      return `${bar()}<div class="screen stagger">
+        <div class="center" style="margin:8px 0"><div class="big-emoji">🔄</div></div>
+        <h1 class="center" style="font-size:clamp(22px,7vw,28px)">A pergunta da maioria era…</h1>
+        <div class="card" style="margin-top:14px;border-left:3px solid var(--lime)">
+          <p style="font-size:clamp(17px,5.5vw,21px);line-height:1.5;font-weight:700">${esc(r.pair[0])}</p>
+        </div>
+        <div class="note" style="margin-top:14px">Quem respondeu algo que NÃO combina com essa pergunta é o impostor (recebeu outra). Agora ele já sabe — e deve blefar pra não se entregar na discussão.</div>
+        <div class="spacer"></div>
+        <button class="btn btn-red btn-lg" data-action="toDiscuss" style="width:100%">Iniciar discussão ⏱</button>
+      </div>`;
+    }
     return `${bar()}<div class="screen pass">
       <div class="big-emoji">✅</div>
       <h1 style="font-size:clamp(24px,8vw,30px)" class="center">Todos viram!</h1>
@@ -599,10 +671,16 @@ function cardInner(card){
 
 function viewHostReveal(){
   const r=S.round,host=S.players[r.host];
+  const scen=r.scenario?`<div class="card" style="margin:0 0 4px;border-left:3px solid var(--gold);text-align:left">
+      <div class="kicker" style="color:var(--gold)">Cenário desta rodada</div>
+      <b style="font-size:17px;display:block;margin-top:4px">${esc(r.scenario.name)}</b>
+      <p class="muted" style="font-size:13.5px;margin-top:4px">${esc(r.scenario.prompt)}</p>
+    </div>`:'';
   return `${bar()}<div class="screen pass">
     <div class="kicker">Anfitrião sorteado</div>
     <h1 style="font-size:clamp(30px,11vw,40px)">${esc(host.name)}</h1>
-    <p class="muted">${esc(host.name)}, pegue o celular. Só você pode ver a regra.</p>
+    ${scen}
+    <p class="muted">${esc(host.name)}, pegue o celular. Só você vê a regra secreta.</p>
     <div class="reveal-card hidden" id="rcard" data-action="flipHost">
       <div class="big-emoji">🤫</div>
       <div style="margin-top:10px;font-weight:700">Toque para ver a regra</div>
@@ -625,6 +703,76 @@ function viewClueReveal(){
   </div>`;
 }
 
+/* ----- ENTREVISTA INVERTIDA ----- */
+function viewEntrevistaReveal(){
+  const r=S.round, perf=S.players[r.performer];
+  return `${bar()}<div class="screen pass">
+    <div class="kicker">No banco dos entrevistados</div>
+    <h1 style="font-size:clamp(28px,10vw,38px)">${esc(perf.name)}</h1>
+    <p class="muted">Só ${esc(perf.name)} pega o celular e vê o personagem secreto. Os outros vão entrevistar.</p>
+    <div class="reveal-card hidden" id="rcard" data-action="flipEntrevista">
+      <div class="big-emoji">🎭</div>
+      <div style="margin-top:10px;font-weight:700">Toque para ver seu personagem</div>
+    </div>
+    <button class="btn btn-ghost btn-sm" data-action="reEntrevista">🎲 Outro entrevistado</button>
+  </div>`;
+}
+function viewEntrevistaQ(){
+  const r=S.round, perf=S.players[r.performer];
+  const qs=r.questions.map(q=>`<div class="prow"><div class="pn" style="font-size:14px">🎤 ${esc(q)}</div></div>`).join('');
+  return `${bar()}<div class="screen stagger">
+    <div class="center" style="margin:6px 0"><div class="big-emoji">🎤</div></div>
+    <h1 class="center" style="font-size:clamp(22px,7vw,28px)">Entrevistem ${esc(perf.name)}</h1>
+    <p class="muted center" style="font-size:13.5px">Ele(a) responde SEM sair do personagem. Usem estas perguntas ou inventem as suas:</p>
+    <div class="plist" style="margin-top:12px">${qs}</div>
+    <div class="spacer"></div>
+    <button class="btn btn-red btn-lg" data-action="toDiscuss">Iniciar entrevista ⏱</button>
+  </div>`;
+}
+
+/* ----- HISTÓRIA EM TURNOS ----- */
+function nextHistWord(){
+  const h=S.hist; let pool=HIST_WORDS;
+  if(h.used.length>=HIST_WORDS.length)h.used=[];
+  pool=HIST_WORDS.filter(w=>!h.used.includes(w));
+  const w=pool[rnd(pool.length)]; h.used.push(w); return w;
+}
+function initHistoria(){
+  S.hist={ order:shuffle(S.players.map((_,i)=>i)), pos:0, turn:1, used:[], word:'' };
+  S.hist.word=nextHistWord();
+}
+function viewHistTurn(){
+  const h=S.hist, P=S.players, cur=P[h.order[h.pos]];
+  return `${bar()}<div class="screen stagger">
+    <div class="kicker">Turno ${h.turn} · vez de</div>
+    <h1 style="font-size:clamp(26px,9vw,34px)">${esc(cur.name)}</h1>
+    <p class="muted" style="font-size:13.5px">Continue a história numa frase. Encaixe a palavra abaixo (natural ou zoada) antes do tempo acabar.</p>
+    <div class="reveal-card shown cidade" style="min-height:auto;margin:16px 0;padding:26px 20px">
+      <div class="kicker">Palavra obrigatória</div>
+      <div class="big cid" style="font-size:clamp(30px,11vw,44px);margin-top:6px">${esc(h.word)}</div>
+    </div>
+    <div class="center" style="font-size:30px;font-weight:800;font-variant-numeric:tabular-nums" id="htimer">0:15</div>
+    <div class="spacer"></div>
+    <button class="btn btn-lime btn-lg" data-action="histNext">Próximo jogador →</button>
+    <div style="height:9px"></div>
+    <button class="btn btn-ghost" data-action="histEnd">Encerrar história</button>
+  </div>`;
+}
+function viewHistResolve(){
+  const sel=S.hist&&S.hist.bestSel;
+  const opts=S.players.map((p,i)=>`<button class="btn ${sel===i?'btn-lime':'btn-ghost'}" data-action="histPick:${i}" style="margin-bottom:8px;width:100%">${sel===i?'✓ ':''}${esc(p.name)}</button>`).join('');
+  return `${bar()}<div class="screen">
+    <div class="center" style="margin:6px 0"><div class="big-emoji">📖</div></div>
+    <h1 class="center" style="font-size:clamp(22px,7vw,28px)">Fim da história!</h1>
+    <p class="muted center" style="margin:8px 0 14px">Opcional: o grupo dá +1 a quem se saiu melhor — mais criativo, mais engraçado. Ou sigam sem pontuar.</p>
+    ${opts}
+    <div class="spacer"></div>
+    <button class="btn btn-lime btn-lg" data-action="histAward" ${sel==null?'disabled':''}>+1 para o escolhido →</button>
+    <div style="height:9px"></div>
+    <button class="btn btn-ghost" data-action="histSkip">Sem pontos — próxima rodada →</button>
+  </div>`;
+}
+
 function viewDebate(){
   const d=S.round.debate;
   return `${bar()}<div class="screen stagger">
@@ -642,6 +790,19 @@ function viewDebate(){
 }
 
 let timerInt=null, wakeLock=null;
+let histInt=null;
+function histTickStart(){
+  clearInterval(histInt);
+  const dur=15, endAt=Date.now()+dur*1000;
+  const upd=()=>{
+    if(S.screen!=='histTurn'){clearInterval(histInt);return;}
+    const left=Math.max(0,Math.ceil((endAt-Date.now())/1000));
+    const el=$('#htimer');
+    if(el){ el.textContent=fmt(left); el.style.color = left<=5&&left>0 ? 'var(--gold)' : (left<=0?'var(--red)':''); }
+    if(left<=0){clearInterval(histInt);if(el)el.textContent='Tempo!';if(navigator.vibrate)navigator.vibrate(150);}
+  };
+  upd(); histInt=setInterval(upd,250);
+}
 async function requestWake(){try{if('wakeLock'in navigator){wakeLock=await navigator.wakeLock.request('screen');}}catch(e){}}
 function releaseWake(){try{if(wakeLock){wakeLock.release();wakeLock=null;}}catch(e){}}
 function beep(){try{const A=window.AudioContext||window.webkitAudioContext;if(!A)return;const a=new A();const o=a.createOscillator();const g=a.createGain();o.connect(g);g.connect(a.destination);o.type='sine';o.frequency.value=880;g.gain.setValueAtTime(.001,a.currentTime);g.gain.exponentialRampToValueAtTime(.25,a.currentTime+.02);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+.6);o.start();o.stop(a.currentTime+.65);setTimeout(()=>a.close(),800);}catch(e){}}
@@ -676,7 +837,7 @@ function viewResolve(){
   if(g.fam==='imp'){
     const impNames=r.impostors.map(i=>S.players[i].name).join(' e ');
     let extra='';
-    if(g.id==='palavra'||g.id==='personagem'||g.id==='duplo')extra=`A palavra era <b style="color:var(--lime)">${esc(r.secretWord)}</b>.`;
+    if(g.id==='camaleao'||g.id==='duplo')extra=`O segredo era <b style="color:var(--lime)">${esc(r.secretWord)}</b>.`;
     if(g.id==='coordenada')extra=`Cidade no nº <b style="color:var(--lime)">${r.realN}</b>, impostor no nº <b style="color:var(--red)">${r.impN}</b>.`;
     if(g.id==='invertida')extra=`Cidade: "${esc(r.pair[0])}" · Impostor: "${esc(r.pair[1])}".`;
     return `${bar()}<div class="screen center">
@@ -696,7 +857,7 @@ function viewResolve(){
     const opts=S.players.map((p,i)=>`<button class="btn ${sel.includes(i)?'btn-lime':'btn-ghost'}" data-action="regToggle:${i}" style="margin-bottom:8px">${sel.includes(i)?'✓ ':''}${esc(p.name)}</button>`).join('');
     return `${bar()}<div class="screen">
       <h1 style="font-size:clamp(24px,8vw,28px);margin-top:10px" class="center">A regra era:</h1>
-      <div class="note" style="margin:14px 0">${g.secret}</div>
+      <div class="note" style="margin:14px 0">${r.secret||g.secret||''}</div>
       <div class="sec-label">Quem descobriu? (marque todos que acertaram)</div>
       ${opts}
       <div class="spacer"></div>
@@ -727,6 +888,31 @@ function viewResolve(){
       <div class="sec-label">Alguém acertou?</div>
       ${opts}
       <button class="btn btn-red" data-action="res:pistas:none">Ninguém acertou (0 ponto)</button>
+    </div>`;
+  }
+  if(g.id==='entrevista'){
+    const perf=S.players[r.performer];
+    return `${bar()}<div class="screen center">
+      <div class="kicker" style="margin-top:14px">O personagem era</div>
+      <div class="reveal-card shown cidade" style="min-height:auto;margin:14px 0;padding:22px"><div class="big cid" style="font-size:clamp(20px,6.5vw,28px)">${esc(r.character)}</div></div>
+      <p class="muted" style="font-size:14px">${esc(perf.name)} se manteve no personagem?</p>
+      <div class="sec-label">Decidam juntos</div>
+      <button class="btn btn-lime btn-lg" data-action="res:entrevista:1">😎 Mandou bem (+1 pra ${esc(perf.name)})</button>
+      <div style="height:10px"></div>
+      <button class="btn btn-ghost btn-lg" data-action="res:entrevista:0">😬 Quebrou o personagem (0)</button>
+    </div>`;
+  }
+  if(g.fam==='deb'){
+    const sel=r.debSel;
+    const opts=S.players.map((p,i)=>`<button class="btn ${sel===i?'btn-lime':'btn-ghost'}" data-action="debPick:${i}" style="margin-bottom:8px;width:100%">${sel===i?'✓ ':''}${esc(p.name)}</button>`).join('');
+    return `${bar()}<div class="screen">
+      <h1 style="font-size:clamp(22px,7vw,26px);margin-top:10px" class="center">Melhor argumento?</h1>
+      <p class="muted center" style="margin:8px 0 14px">Debate não tem certo ou errado. Opcional: o grupo dá +1 a quem defendeu melhor — ou sigam sem pontuar.</p>
+      ${opts}
+      <div class="spacer"></div>
+      <button class="btn btn-lime btn-lg" data-action="debAward" ${sel==null?'disabled':''}>+1 para o escolhido →</button>
+      <div style="height:9px"></div>
+      <button class="btn btn-ghost" data-action="finishNoScore">Sem pontos — próxima rodada →</button>
     </div>`;
   }
   return '';
@@ -785,17 +971,30 @@ function render(){
     case 'reveal':html=viewReveal();break;
     case 'hostReveal':html=viewHostReveal();break;
     case 'clueReveal':html=viewClueReveal();break;
+    case 'entrevistaReveal':html=viewEntrevistaReveal();break;
+    case 'entrevistaQ':html=viewEntrevistaQ();break;
+    case 'histTurn':html=viewHistTurn();break;
+    case 'histResolve':html=viewHistResolve();break;
     case 'debate':html=viewDebate();break;
     case 'discuss':html=viewDiscuss();break;
     case 'resolve':html=viewResolve();break;
     case 'scoreboard':html=viewScoreboard();break;
     case 'champion':html=viewChampion();break;
+    case 'mafSetup':html=viewMafSetup();break;
+    case 'mafDeal':html=viewMafDeal();break;
+    case 'mafNight':html=viewMafNight();break;
+    case 'mafTurn':html=viewMafTurn();break;
+    case 'mafDay':html=viewMafDay();break;
+    case 'mafVote':html=viewMafVote();break;
+    case 'mafVoteResult':html=viewMafVoteResult();break;
+    case 'mafOver':html=viewMafOver();break;
   }
   app.innerHTML=html;
   if(S.screen==='discuss')tickStart();
+  if(S.screen==='histTurn')histTickStart();
   if(S.screen==='players'){const inp=$('#pname');if(inp){inp.focus();inp.onkeydown=e=>{if(e.key==='Enter')addPlayer();};}}
   if(S.screen==='config'){const ci=$('#cword');if(ci){ci.onkeydown=e=>{if(e.key==='Enter')addCustom();};}}
-  if(S.screen==='champion')confetti();
+  if(S.screen==='champion'||S.screen==='mafOver')confetti();
   save();
 }
 
@@ -815,9 +1014,12 @@ function addCustom(){
   render();
 }
 function setupRound(){
+  if(S.game.id==='mafia'){ initMafiaSetup(); go('mafSetup'); return; }
+  if(S.game.id==='historia'){ initHistoria(); go('histTurn'); return; }
   buildRound();
   const g=S.game;
-  if(g.fam==='imp'||g.id==='escala')go('reveal');
+  if(g.id==='entrevista')go('entrevistaReveal');
+  else if(g.fam==='imp'||g.id==='escala')go('reveal');
   else if(g.fam==='reg')go('hostReveal');
   else if(g.id==='pistas')go('clueReveal');
   else if(g.fam==='deb')go('debate');
@@ -833,8 +1035,277 @@ function applyResolve(action){
     if(parts[2]==='1')award(S.players.map((_,i)=>i),1);
   } else if(g.id==='pistas'){
     if(parts[2]!=='none')award([+parts[2],r.clueGiver],1);
+  } else if(g.id==='entrevista'){
+    if(parts[2]==='1')award([r.performer],1);
   }
   nextRoundOrEnd();
+}
+
+/* =========================================================
+   MÁFIA (modo autocontido — o celular é o narrador)
+========================================================= */
+function defaultMafia(n){ if(n<=6)return 1; if(n<=9)return 2; if(n<=12)return 3; return 4; }
+function mafCitizens(){ const m=S.maf; return m.n - m.mafiaCount - (m.detective?1:0) - (m.doctor?1:0); }
+function mafSetupValid(){ const m=S.maf; return m.mafiaCount>=1 && m.mafiaCount*2<m.n && mafCitizens()>=0; }
+function initMafiaSetup(){
+  const n=S.players.length;
+  S.maf={ n, mafiaCount:defaultMafia(n), detective:true, doctor:true,
+    roles:[], alive:[], night:1,
+    dealIdx:0, dealFlipped:false,
+    turnOrder:[], turnPos:0, turnRevealed:false, turnPick:null,
+    mafiaPicks:{}, doctorSave:null,
+    lastVictim:null, lastSaved:false, eliminated:null,
+    winner:null, scored:false };
+}
+function dealMafiaRoles(){
+  const m=S.maf, idx=S.players.map((_,i)=>i);
+  const order=shuffle(idx);
+  const roles=new Array(m.n).fill('cidadao');
+  let p=0;
+  for(let k=0;k<m.mafiaCount;k++)roles[order[p++]]='mafia';
+  if(m.detective)roles[order[p++]]='detective';
+  if(m.doctor)roles[order[p++]]='doctor';
+  m.roles=roles;
+  m.alive=new Array(m.n).fill(true);
+  m.dealIdx=0; m.dealFlipped=false;
+  go('mafDeal');
+}
+function roleName(r){ return r==='mafia'?'Máfia':r==='detective'?'Detetive':r==='doctor'?'Médico':'Cidadão'; }
+function mafCounts(){
+  const m=S.maf; let maf=0,city=0;
+  m.roles.forEach((r,i)=>{ if(!m.alive[i])return; if(r==='mafia')maf++; else city++; });
+  return {maf,city};
+}
+function checkWin(){
+  const {maf,city}=mafCounts();
+  if(maf===0)return 'cidade';
+  if(maf>=city)return 'mafia';
+  return null;
+}
+function resolveNight(){
+  const m=S.maf;
+  const tally={};
+  Object.values(m.mafiaPicks).forEach(t=>{ if(t!=null)tally[t]=(tally[t]||0)+1; });
+  let victim=null, best=-1, tied=[];
+  Object.keys(tally).forEach(k=>{ const v=tally[k]; if(v>best){best=v;tied=[+k];}else if(v===best)tied.push(+k); });
+  if(tied.length)victim=tied[rnd(tied.length)];
+  if(victim!=null && m.doctorSave===victim){ m.lastVictim=null; m.lastSaved=true; }
+  else if(victim!=null){ m.alive[victim]=false; m.lastVictim=victim; m.lastSaved=false; }
+  else { m.lastVictim=null; m.lastSaved=false; }
+  m.winner=checkWin();
+}
+function endMafia(){
+  const m=S.maf;
+  if(!m.scored){
+    const win=m.winner;
+    const idxs=S.players.map((_,i)=>i).filter(i=> win==='mafia' ? m.roles[i]==='mafia' : m.roles[i]!=='mafia');
+    award(idxs,2);
+    m.scored=true;
+  }
+  go('mafOver');
+}
+
+/* ----- VIEWS MÁFIA ----- */
+function viewMafSetup(){
+  const m=S.maf, valid=mafSetupValid(), cz=mafCitizens();
+  const chip=(on,label,act)=>`<button class="btn ${on?'btn-lime':'btn-ghost'} btn-sm" data-action="${act}" style="margin:0 6px 8px 0">${on?'✓ ':''}${label}</button>`;
+  return `${bar()}<div class="screen stagger">
+    <div class="center" style="margin:6px 0"><div class="big-emoji">🔪</div></div>
+    <h1 class="center" style="font-size:clamp(24px,8vw,30px)">Máfia · preparar</h1>
+    <p class="muted center">${m.n} jogadores nesta partida. O celular vai narrar tudo.</p>
+
+    <div class="card" style="margin-top:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div><b>Membros da Máfia</b><div class="faint" style="font-size:12px">Quanto mais máfia, mais difícil pra cidade.</div></div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <button class="btn btn-ghost btn-sm" data-action="mafCfg:mafia:-1" ${m.mafiaCount<=1?'disabled':''}>−</button>
+          <b style="font-size:20px;min-width:20px;text-align:center">${m.mafiaCount}</b>
+          <button class="btn btn-ghost btn-sm" data-action="mafCfg:mafia:1" ${m.mafiaCount*2>=m.n-1?'disabled':''}>＋</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <b>Papéis especiais</b>
+      <div style="margin-top:10px">
+        ${chip(m.detective,'🔎 Detetive','mafCfg:detective:0')}
+        ${chip(m.doctor,'🩺 Médico','mafCfg:doctor:0')}
+      </div>
+      <div class="faint" style="font-size:12px;margin-top:4px">Detetive investiga 1 por noite. Médico protege 1 por noite (pode ser ele mesmo).</div>
+    </div>
+
+    <div class="note" style="margin-top:14px">
+      Composição: <b>${m.mafiaCount}</b> máfia · ${m.detective?'1 detetive · ':''}${m.doctor?'1 médico · ':''}<b>${cz}</b> cidadão${cz===1?'':'s'}.
+      ${valid?'':'<br><span style="color:var(--red)">A máfia precisa ser minoria e sobrar gente pra cidade. Ajuste os números.</span>'}
+    </div>
+
+    <div class="spacer"></div>
+    <button class="btn btn-red btn-lg" data-action="mafDealRoles" ${valid?'':'disabled'}>Distribuir papéis →</button>
+  </div>`;
+}
+function viewMafDeal(){
+  const m=S.maf, i=m.dealIdx, P=S.players;
+  if(i>=P.length){
+    return `${bar()}<div class="screen pass">
+      <div class="big-emoji">🌙</div>
+      <h1 style="font-size:clamp(24px,8vw,30px)" class="center">Todos sabem quem são.</h1>
+      <p class="muted center">Guardem segredo. Quando estiverem prontos, a primeira noite começa.</p>
+      <button class="btn btn-red btn-lg" data-action="mafToNight" style="width:100%">Começar a noite 🌙</button>
+    </div>`;
+  }
+  return `${bar()}<div class="screen pass">
+    <div class="kicker">Papel ${i+1} de ${P.length}</div>
+    <h1 style="font-size:clamp(30px,10vw,38px)">${esc(P[i].name)}</h1>
+    <p class="muted">Pegue o celular. Toque para ver seu papel — só você.</p>
+    <div class="reveal-card hidden" id="rcard" data-action="mafDealFlip">
+      <div class="big-emoji">🎴</div>
+      <div style="margin-top:10px;font-weight:700">Toque para revelar</div>
+    </div>
+  </div>`;
+}
+function viewMafNight(){
+  const m=S.maf;
+  return `${bar()}<div class="screen stagger">
+    <div class="center" style="margin:10px 0"><div class="big-emoji">🌙</div></div>
+    <h1 class="center" style="font-size:clamp(26px,9vw,34px)">Noite ${m.night}</h1>
+    <p class="muted center">A cidade dorme. O celular vai passar por cada um que continua vivo. Quem não tem ação noturna recebe só uma tela de "durma" — finja agir, ninguém saberá.</p>
+    <div class="note" style="margin-top:14px">Passe o aparelho na ordem que aparecer. Não comente nada em voz alta durante a noite.</div>
+    <div class="spacer"></div>
+    <button class="btn btn-red btn-lg" data-action="mafStartTurns">Iniciar a noite 🌙</button>
+  </div>`;
+}
+function viewMafTurn(){
+  const m=S.maf, P=S.players;
+  if(m.turnPos>=m.turnOrder.length){ return viewMafDay(); }
+  const cur=m.turnOrder[m.turnPos], role=m.roles[cur];
+  if(!m.turnRevealed){
+    return `${bar()}<div class="screen pass">
+      <div class="kicker">Vez ${m.turnPos+1} de ${m.turnOrder.length}</div>
+      <h1 style="font-size:clamp(30px,10vw,38px)">${esc(P[cur].name)}</h1>
+      <p class="muted">Pegue o celular sozinho. Toque para ver sua ação da noite.</p>
+      <div class="reveal-card hidden" id="rcard" data-action="mafTurnReveal">
+        <div class="big-emoji">🌙</div>
+        <div style="margin-top:10px;font-weight:700">Toque (só você)</div>
+      </div>
+    </div>`;
+  }
+  const aliveTargets=(filterFn)=>P.map((p,i)=>({p,i})).filter(({i})=>m.alive[i]&&filterFn(i));
+  const pick=m.turnPick;
+  const btn=(i,label)=>`<button class="btn ${pick===i?'btn-lime':'btn-ghost'}" data-action="mafPick:${i}" style="margin-bottom:8px;width:100%">${pick===i?'✓ ':''}${esc(label)}</button>`;
+
+  if(role==='mafia'){
+    const comrades=[];
+    for(let k=0;k<m.turnPos;k++){const pi=m.turnOrder[k];if(m.roles[pi]==='mafia'&&m.mafiaPicks[pi]!=null)comrades.push(`${esc(P[pi].name)} → ${esc(P[m.mafiaPicks[pi]].name)}`);}
+    const opts=aliveTargets(i=>m.roles[i]!=='mafia').map(({p,i})=>btn(i,p.name)).join('');
+    return `${bar()}<div class="screen stagger">
+      <div class="kicker" style="color:#bda4ff">Você é da Máfia 🔪</div>
+      <h1 style="font-size:clamp(22px,7vw,28px)">Quem a Máfia elimina?</h1>
+      ${comrades.length?`<div class="note" style="margin-top:10px">Comparsas já marcaram: ${comrades.join(' · ')}</div>`:`<p class="muted" style="font-size:13px">Escolha o alvo. Combine com seus comparsas na mesma vítima.</p>`}
+      <div style="margin-top:14px">${opts}</div>
+      <button class="btn btn-red btn-lg" data-action="mafTurnNext" ${pick==null?'disabled':''}>Confirmar e passar →</button>
+    </div>`;
+  }
+  if(role==='detective'){
+    const opts=aliveTargets(i=>i!==cur).map(({p,i})=>btn(i,p.name)).join('');
+    let result='';
+    if(pick!=null){ const isMaf=m.roles[pick]==='mafia';
+      result=`<div class="card" style="margin-top:8px;border-left:3px solid ${isMaf?'var(--red)':'var(--lime)'}">
+        <b>${esc(P[pick].name)}</b> ${isMaf?'<span style="color:var(--red)">É da Máfia. 🔪</span>':'<span style="color:var(--lime)">NÃO é da Máfia. ✅</span>'}
+        <div class="faint" style="font-size:12px;margin-top:4px">Memorize — essa info some quando você passar.</div>
+      </div>`; }
+    return `${bar()}<div class="screen stagger">
+      <div class="kicker" style="color:#8ec0ff">Você é o Detetive 🔎</div>
+      <h1 style="font-size:clamp(22px,7vw,28px)">Investigar quem?</h1>
+      <p class="muted" style="font-size:13px">Veja na hora se a pessoa é da Máfia.</p>
+      <div style="margin-top:14px">${opts}</div>
+      ${result}
+      <button class="btn btn-red btn-lg" data-action="mafTurnNext" ${pick==null?'disabled':''} style="margin-top:10px">Entendi — passar →</button>
+    </div>`;
+  }
+  if(role==='doctor'){
+    const opts=aliveTargets(()=>true).map(({p,i})=>btn(i,p.name+(i===cur?' (você)':''))).join('');
+    return `${bar()}<div class="screen stagger">
+      <div class="kicker" style="color:var(--lime)">Você é o Médico 🩺</div>
+      <h1 style="font-size:clamp(22px,7vw,28px)">Proteger quem esta noite?</h1>
+      <p class="muted" style="font-size:13px">Se a Máfia atacar essa pessoa, ela sobrevive. Pode se proteger.</p>
+      <div style="margin-top:14px">${opts}</div>
+      <button class="btn btn-red btn-lg" data-action="mafTurnNext" ${pick==null?'disabled':''}>Confirmar e passar →</button>
+    </div>`;
+  }
+  return `${bar()}<div class="screen pass">
+    <div class="big-emoji">😴</div>
+    <h1 style="font-size:clamp(24px,8vw,30px)" class="center">Você dorme.</h1>
+    <p class="muted center">Sem ação esta noite. Finja que está fazendo algo e passe o celular sem comentar.</p>
+    <button class="btn btn-red btn-lg" data-action="mafTurnNext" style="width:100%">Passar →</button>
+  </div>`;
+}
+function viewMafDay(){
+  const m=S.maf, P=S.players, {maf,city}=mafCounts();
+  let head, body;
+  if(m.lastSaved){ head='🩺 Ninguém morreu!'; body='A Máfia atacou, mas o Médico salvou a vítima. A noite passou em branco.'; }
+  else if(m.lastVictim!=null){ head=`☠️ ${esc(P[m.lastVictim].name)} foi morto(a).`; body=`Era <b>${roleName(m.roles[m.lastVictim])}</b>. A cidade amanhece com uma cadeira vazia.`; }
+  else { head='🌅 Noite tranquila.'; body='Ninguém foi eliminado nesta noite.'; }
+  const aliveList=P.map((p,i)=>m.alive[i]?`<span class="chip">${esc(p.name)}</span>`:'').filter(Boolean).join(' ');
+  const ended=!!m.winner;
+  return `${bar()}<div class="screen stagger">
+    <div class="center" style="margin:8px 0"><div class="big-emoji">☀️</div></div>
+    <h1 class="center" style="font-size:clamp(22px,7vw,28px)">Dia ${m.night}</h1>
+    <div class="card" style="margin-top:12px;border-left:3px solid var(--gold)">
+      <b>${head}</b><p style="margin-top:6px;font-size:14px;line-height:1.5">${body}</p>
+    </div>
+    <div class="note" style="margin-top:12px">Vivos (${maf+city}): ${aliveList}</div>
+    <div class="spacer"></div>
+    ${ended
+      ? `<button class="btn btn-red btn-lg" data-action="mafEnd">Ver o resultado →</button>`
+      : `<p class="muted center" style="font-size:13px">Debatam quem é suspeito. Quando decidirem, votem.</p>
+         <button class="btn btn-red btn-lg" data-action="mafToVote">Ir para a votação →</button>`}
+  </div>`;
+}
+function viewMafVote(){
+  const m=S.maf, P=S.players;
+  const opts=P.map((p,i)=>m.alive[i]?`<button class="btn btn-ghost" data-action="mafElim:${i}" style="margin-bottom:8px;width:100%">${esc(p.name)}</button>`:'').filter(Boolean).join('');
+  return `${bar()}<div class="screen stagger">
+    <h1 style="font-size:clamp(24px,8vw,30px)">Votação · dia ${m.night}</h1>
+    <p class="muted">Discutam e escolham quem linchar. A maioria decide — toque no escolhido.</p>
+    <div style="margin-top:16px">${opts}</div>
+    <button class="btn btn-ghost btn-lg" data-action="mafElim:none">Empate — ninguém é eliminado</button>
+  </div>`;
+}
+function viewMafVoteResult(){
+  const m=S.maf, P=S.players, i=m.eliminated;
+  let head,body;
+  if(i==null){ head='🤐 Ninguém foi eliminado.'; body='O grupo não chegou a um acordo. A noite cai de novo.'; }
+  else{ const isMaf=m.roles[i]==='mafia';
+    head=`⚖️ ${esc(P[i].name)} foi eliminado(a).`;
+    body=`Era <b>${roleName(m.roles[i])}</b>. ${isMaf?'<span style="color:var(--lime)">A cidade acertou um da Máfia! 🎯</span>':'<span style="color:var(--red)">Era inocente… a Máfia agradece.</span>'}`;
+  }
+  const ended=!!m.winner;
+  return `${bar()}<div class="screen stagger">
+    <div class="center" style="margin:8px 0"><div class="big-emoji">⚖️</div></div>
+    <div class="card" style="margin-top:8px;border-left:3px solid ${i!=null&&m.roles[i]==='mafia'?'var(--lime)':'var(--red)'}">
+      <b>${head}</b><p style="margin-top:6px;font-size:14px;line-height:1.5">${body}</p>
+    </div>
+    <div class="spacer"></div>
+    ${ended
+      ? `<button class="btn btn-red btn-lg" data-action="mafEnd">Ver o resultado →</button>`
+      : `<button class="btn btn-red btn-lg" data-action="mafNextNight">Cai a noite 🌙</button>`}
+  </div>`;
+}
+function viewMafOver(){
+  const m=S.maf, P=S.players, win=m.winner;
+  const rolesList=P.map((p,i)=>`<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.06)">
+    <span style="${m.alive[i]?'':'opacity:.5;text-decoration:line-through'}">${esc(p.name)}</span>
+    <span class="tag ${m.roles[i]==='mafia'?'maf':'reg'}" style="margin-top:0">${roleName(m.roles[i])}</span></div>`).join('');
+  return `<div id="conf"></div>${bar()}<div class="screen stagger">
+    <div class="center" style="margin:10px 0"><div class="big-emoji">${win==='mafia'?'🔪':'🛡️'}</div></div>
+    <h1 class="center" style="font-size:clamp(26px,9vw,34px)">${win==='mafia'?'A Máfia venceu!':'A Cidade venceu!'}</h1>
+    <p class="muted center">${win==='mafia'?'Eles tomaram a cidade. +2 para cada membro da Máfia.':'Toda a Máfia foi exposta. +2 para cada cidadão.'}</p>
+    <div class="card" style="margin-top:16px"><b>Papéis revelados</b><div style="margin-top:8px">${rolesList}</div></div>
+    <div class="spacer"></div>
+    <button class="btn btn-lime btn-lg" data-action="mafContinue">Somar pontos e seguir a noite →</button>
+    <div style="height:9px"></div>
+    <button class="btn btn-ghost" data-go="scoreboard">Ver placar</button>
+  </div>`;
 }
 
 document.addEventListener('click',(e)=>{
@@ -875,7 +1346,7 @@ document.addEventListener('click',(e)=>{
     case a==='flipHost':{
       const c=$('#rcard');
       c.className='reveal-card shown cidade flip-in';
-      c.innerHTML=`<div class="kicker">Regra secreta</div><p style="font-size:16px;line-height:1.55;margin-top:12px">${S.game.secret}</p><div style="margin-top:18px"><button class="btn btn-lime btn-sm" data-action="toDiscuss">Entendi — começar ⏱</button></div>`;
+      c.innerHTML=`<div class="kicker">Regra secreta</div><p style="font-size:16px;line-height:1.55;margin-top:12px">${S.round.secret||S.game.secret||''}</p><div style="margin-top:18px"><button class="btn btn-lime btn-sm" data-action="toDiscuss">Entendi — começar ⏱</button></div>`;
       break;
     }
     case a==='reHost':S.round.host=rnd(S.players.length);render();break;
@@ -886,6 +1357,19 @@ document.addEventListener('click',(e)=>{
       break;
     }
     case a==='reClue':S.round.clueGiver=rnd(S.players.length);render();break;
+    case a==='flipEntrevista':{
+      const c=$('#rcard');if(!c)break;
+      c.className='reveal-card shown cidade flip-in';
+      c.innerHTML=`<div class="kicker">Seu personagem secreto</div><div class="big cid" style="font-size:clamp(20px,6.5vw,28px);margin:12px 0">${esc(S.round.character)}</div><p class="muted" style="font-size:13px">Responda tudo como esse personagem. Não saia dele!</p><div style="margin-top:16px"><button class="btn btn-lime btn-sm" data-action="toEntrevistaQ">Memorizei — passar pro grupo →</button></div>`;
+      break;
+    }
+    case a==='reEntrevista':S.round.performer=rnd(S.players.length);S.round.character=PERSONAGENS[rnd(PERSONAGENS.length)];render();break;
+    case a==='toEntrevistaQ':go('entrevistaQ');break;
+    case a==='histNext':{const h=S.hist;h.pos=(h.pos+1)%h.order.length;h.turn++;h.word=nextHistWord();render();break;}
+    case a==='histEnd':clearInterval(histInt);go('histResolve');break;
+    case a&&a.startsWith('histPick:'):S.hist.bestSel=+a.split(':')[1];render();break;
+    case a==='histAward':{const i=S.hist&&S.hist.bestSel;if(i!=null)award([i],1);S.hist=null;nextRoundOrEnd();break;}
+    case a==='histSkip':S.hist=null;nextRoundOrEnd();break;
     case a==='toDiscuss':S.round.timeLeft=S.discuss;S.round.endAt=Date.now()+S.discuss*1000;S.round.paused=false;go('discuss');break;
     case a==='timerToggle':{
       if(!S.round.paused){S.round.paused=true;S.round.timeLeft=Math.max(0,Math.ceil((S.round.endAt-Date.now())/1000));releaseWake();}
@@ -906,6 +1390,66 @@ document.addEventListener('click',(e)=>{
     }
     case a==='regConfirm':{const sel=S.round.regSel||[];if(!sel.length)break;award(sel,1);nextRoundOrEnd();break;}
     case a&&a.startsWith('res:'):applyResolve(a);break;
+    case a&&a.startsWith('debPick:'):S.round.debSel=+a.split(':')[1];render();break;
+    case a==='debAward':{const i=S.round.debSel;if(i==null)break;award([i],1);nextRoundOrEnd();break;}
+    case a&&a.startsWith('mafCfg:'):{
+      const [,k,d]=a.split(':');const m=S.maf;
+      if(k==='mafia')m.mafiaCount=Math.max(1,m.mafiaCount+(+d));
+      else if(k==='detective')m.detective=!m.detective;
+      else if(k==='doctor')m.doctor=!m.doctor;
+      render();break;
+    }
+    case a==='mafDealRoles':if(mafSetupValid())dealMafiaRoles();break;
+    case a==='mafDealFlip':{
+      const c=$('#rcard');if(!c)break;const m=S.maf,i=m.dealIdx,role=m.roles[i];
+      const isMaf=role==='mafia';
+      let inner;
+      if(isMaf){
+        const mates=S.players.map((p,k)=>k!==i&&m.roles[k]==='mafia'?esc(p.name):'').filter(Boolean);
+        inner=`<div class="kicker" style="color:#bda4ff">Seu papel</div><div class="big" style="color:#bda4ff;font-size:clamp(26px,9vw,36px)">MÁFIA 🔪</div>
+          <p class="muted" style="font-size:13.5px;max-width:300px">${mates.length?'Seus comparsas: <b style="color:#bda4ff">'+mates.join(', ')+'</b>. Combinem a vítima na calada.':'Você é a única Máfia. Aja sozinho.'}</p>`;
+      } else {
+        const meta={detective:['🔎','DETETIVE','#8ec0ff','Toda noite você investiga 1 pessoa e descobre se é da Máfia.'],
+          doctor:['🩺','MÉDICO','var(--lime)','Toda noite você protege 1 pessoa (pode ser você) de morrer.'],
+          cidadao:['🧑','CIDADÃO','var(--lime)','Sem poder especial. Use voto e dedução pra achar a Máfia.']}[role];
+        inner=`<div class="kicker">Seu papel</div><div class="big" style="color:${meta[2]};font-size:clamp(24px,8vw,32px)">${meta[1]} ${meta[0]}</div>
+          <p class="muted" style="font-size:13.5px;max-width:300px">${meta[3]}</p>`;
+      }
+      c.className='reveal-card shown '+(isMaf?'impostor':'cidade')+' flip-in';
+      c.innerHTML=inner+'<div style="margin-top:18px"><button class="btn btn-ghost btn-sm" data-action="mafDealNext">Guardei — próximo →</button></div>';
+      break;
+    }
+    case a==='mafDealNext':S.maf.dealIdx++;render();break;
+    case a==='mafToNight':go('mafNight');break;
+    case a==='mafStartTurns':{
+      const m=S.maf;
+      m.turnOrder=S.players.map((_,i)=>i).filter(i=>m.alive[i]);
+      m.turnPos=0;m.turnRevealed=false;m.turnPick=null;m.mafiaPicks={};m.doctorSave=null;
+      go('mafTurn');break;
+    }
+    case a==='mafTurnReveal':S.maf.turnRevealed=true;render();break;
+    case a&&a.startsWith('mafPick:'):{
+      S.maf.turnPick=+a.split(':')[1];render();break;
+    }
+    case a==='mafTurnNext':{
+      const m=S.maf,cur=m.turnOrder[m.turnPos],role=m.roles[cur];
+      if(role==='mafia'&&m.turnPick!=null)m.mafiaPicks[cur]=m.turnPick;
+      else if(role==='doctor'&&m.turnPick!=null)m.doctorSave=m.turnPick;
+      m.turnPos++;m.turnRevealed=false;m.turnPick=null;
+      if(m.turnPos>=m.turnOrder.length){resolveNight();go('mafDay');}
+      else render();
+      break;
+    }
+    case a==='mafToVote':go('mafVote');break;
+    case a&&a.startsWith('mafElim:'):{
+      const m=S.maf,v=a.split(':')[1];
+      if(v==='none'){m.eliminated=null;}
+      else{const i=+v;m.alive[i]=false;m.eliminated=i;m.winner=checkWin();}
+      go('mafVoteResult');break;
+    }
+    case a==='mafNextNight':{const m=S.maf;m.night++;m.eliminated=null;go('mafNight');break;}
+    case a==='mafEnd':endMafia();break;
+    case a==='mafContinue':S.maf=null;nextRoundOrEnd();break;
     case a==='newNight':S.players.forEach(p=>p.score=0);S.currentRound=1;S.game=null;S.round=null;S.lastGameId=null;S.lastWord=null;go('home');break;
     case a==='moreRounds':S.rounds+=3;S.currentRound++;S.game=null;S.round=null;go('play');break;
   }
