@@ -1,7 +1,7 @@
 /* Noite de Jogos — service worker
    Atualize a versão abaixo sempre que publicar uma mudança grande no app
    para forçar a renovação do cache nos aparelhos. */
-const CACHE = 'noite-jogos-v3';
+const CACHE = 'noite-jogos-v4';
 const ASSETS = [
   './',
   './index.html',
@@ -9,7 +9,9 @@ const ASSETS = [
   './icon-192.png',
   './icon-512.png',
   './icon-512-maskable.png',
-  './icon-180.png'
+  './icon-180.png',
+  './favicon.svg',
+  './favicon.ico'
 ];
 
 self.addEventListener('install', (e) => {
