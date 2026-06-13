@@ -11,6 +11,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Noite de Jogos">
 <link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./favicon.svg" type="image/svg+xml">
+<link rel="icon" href="./favicon.ico" sizes="32x32">
 <link rel="icon" type="image/png" href="./icon-192.png">
 <link rel="apple-touch-icon" href="./icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -863,7 +865,7 @@ function viewPlay(){
       <button class="btn btn-lime btn-lg" data-go="players">Adicionar jogadores</button>
     </div>`;
   }
-  const tiles=GAMES.map(g=>{
+  const tile=g=>{
     const ok=playable(g); const [cls,lbl]=FAM_TAG[g.fam];
     return `<div class="tile ${ok?'':'disabled'}" data-game="${g.id}">
       <div class="emoji">${g.emoji}</div>
@@ -872,7 +874,12 @@ function viewPlay(){
       <div class="tag ${cls}">${lbl} · ${g.min}–${g.max>=99?'∞':g.max}</div>
       ${ok?'':`<div class="tdesc" style="color:var(--red);margin-top:6px">precisa ${g.min}–${g.max>=99?'∞':g.max} jog.</div>`}
     </div>`;
-  }).join('');
+  };
+  const n=S.players.length;
+  const ready=GAMES.filter(playable);
+  const locked=GAMES.filter(g=>!playable(g));
+  const readyTiles=ready.map(tile).join('');
+  const lockedTiles=locked.map(tile).join('');
   return `${bar()}
   <div class="screen">
     <div class="row" style="margin:6px 0 4px">
@@ -880,8 +887,10 @@ function viewPlay(){
       <div class="pill" data-go="config">⚙️ ${themeLabel().split(' ')[0]}</div>
     </div>
     <button class="btn btn-red btn-lg" data-action="sortear">🎲 Sortear um jogo</button>
-    <div class="sec-label">Ou escolha</div>
-    <div class="grid">${tiles}</div>
+    <div class="sec-label">${ready.length} ${ready.length===1?'jogo':'jogos'} pra ${n} ${n===1?'jogador':'jogadores'}</div>
+    <div class="grid">${readyTiles}</div>
+    ${locked.length?`<div class="sec-label" style="opacity:.7">Precisam de outro número de gente</div>
+    <div class="grid" style="opacity:.5">${lockedTiles}</div>`:''}
   </div>`;
 }
 
