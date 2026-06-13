@@ -75,6 +75,7 @@
   .tag.deb{background:rgba(255,203,69,.16);color:var(--gold)}
   .tag.maf{background:rgba(168,130,255,.16);color:#bda4ff}
   .tag.perf{background:rgba(95,217,194,.16);color:#5fd9c2}
+  .tag.vote{background:rgba(255,110,180,.16);color:#ff8fc4}
   .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .chips{display:flex;flex-wrap:wrap;gap:8px}
   .chip{font-size:13px;font-weight:600;padding:9px 12px;border-radius:12px;background:var(--surface);border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:.15s}
@@ -297,6 +298,31 @@ const HIST_WORDS = [
   'Meia perdida','Cebola','Wi-Fi','Cupom','Tartaruga','Boleto','Confete',
 ];
 
+const MAIS_PROVAVEL = [
+  '…ser preso por um motivo completamente idiota.',
+  '…sumir de uma festa sem avisar ninguém.',
+  '…chorar assistindo a uma propaganda.',
+  '…namorar alguém famoso um dia.',
+  '…esquecer o próprio aniversário.',
+  '…sobreviver mais tempo num apocalipse zumbi.',
+  '…gastar todo o salário em besteira no mesmo dia.',
+  '…começar uma briga e depois pedir desculpa chorando.',
+  '…virar influencer do nada.',
+  '…cair num golpe óbvio pela internet.',
+  '…rir na hora mais inadequada possível.',
+  '…largar tudo e ir morar numa praia.',
+  '…mandar mensagem pra pessoa errada.',
+  '…ser o último a entender a piada.',
+  '…fingir que leu o livro inteiro.',
+  '…adotar dez gatos.',
+  '…se perder mesmo usando o GPS.',
+  '…dormir no meio do próprio aniversário.',
+  '…inventar uma desculpa absurda pra faltar.',
+  '…ficar milionário e não contar pra ninguém.',
+  '…comer algo que caiu no chão sem pensar duas vezes.',
+  '…falar sozinho achando que ninguém tá vendo.',
+];
+
 const GAMES = [
   {id:'camaleao', fam:'imp', emoji:'🦎', name:'Camaleão', min:3, max:14, theme:true,
    desc:'Todos recebem o mesmo segredo. O camaleão, não. Achem ele.',
@@ -349,9 +375,12 @@ const GAMES = [
   {id:'historia', fam:'perf', emoji:'🧩', name:'História em Turnos', min:2, max:99,
    desc:'Criem uma história juntos. Cada turno vem com uma palavra obrigatória.',
    rules:'O grupo monta uma história, um de cada vez. A cada turno o celular dá uma PALAVRA OBRIGATÓRIA que precisa entrar na frase (natural ou zoada) — e a frase tem que dar continuidade ao que veio antes. Você tem ~15s; travou ou ignorou a palavra, perde a vez. Quanto mais inesperada a entrada da palavra, melhor. Joguem umas 2 voltas e encerrem.'},
+  {id:'provavel', fam:'vote', emoji:'👉', name:'Quem é mais provável de…', min:3, max:99,
+   desc:'O celular lê uma situação. Na contagem, todos apontam pra alguém.',
+   rules:'O celular sorteia uma situação ("…sumir de uma festa sem avisar"). Na contagem regressiva — 3, 2, 1, JÁ! — todos apontam ao mesmo tempo para a pessoa do grupo que mais combina. Quem recebeu mais dedos leva +1 (ou perde, vocês decidem antes). Sem dó, sem pena.'},
 ];
 
-const FAM_TAG = {imp:['imp','Impostor'], reg:['reg','Qual é a regra'], esc:['esc','Sintonia'], deb:['deb','Debate'], maf:['maf','Dedução'], perf:['perf','Atuação']};
+const FAM_TAG = {imp:['imp','Impostor'], reg:['reg','Qual é a regra'], esc:['esc','Sintonia'], deb:['deb','Debate'], maf:['maf','Dedução'], perf:['perf','Atuação'], vote:['vote','Votação']};
 
 /* =========================================================
    ESTADO + PERSISTÊNCIA
@@ -360,6 +389,7 @@ let S = {
   screen:'home', players:[], theme:'geral', rounds:5, discuss:120,
   currentRound:1, customWords:[], game:null, round:null,
   lastGameId:null, lastWord:null, maf:null, hist:null,
+  stats:{games:{},rounds:0},
 };
 const SAVE_KEY='noiteJogos.v2';
 function save(){
@@ -368,6 +398,7 @@ function save(){
       players:S.players, theme:S.theme, rounds:S.rounds, discuss:S.discuss,
       currentRound:S.currentRound, customWords:S.customWords,
       lastGameId:S.lastGameId, lastWord:S.lastWord,
+      stats:S.stats,
     }));
   }catch(e){}
 }
@@ -383,6 +414,8 @@ function load(){
       S.currentRound=d.currentRound||1;
       S.customWords=Array.isArray(d.customWords)?d.customWords:[];
       S.lastGameId=d.lastGameId||null; S.lastWord=d.lastWord||null;
+      S.stats=(d.stats&&typeof d.stats==='object')?{games:d.stats.games||{},rounds:d.stats.rounds||0}:{games:{},rounds:0};
+      S.players.forEach(p=>{if(p.score==null)p.score=0;if(p.impTimes==null)p.impTimes=0;});
     }
   }catch(e){}
 }
@@ -411,6 +444,17 @@ function pickWord(items){
   do{w=items[rnd(items.length)];t++;}while(w===S.lastWord && items.length>1 && t<8);
   S.lastWord=w; return w;
 }
+const lastPick={};
+function pickNoRepeat(list,key){
+  if(!list||!list.length)return undefined;
+  if(list.length===1)return list[0];
+  let pool=list;
+  if(key&&lastPick[key]!==undefined)pool=list.filter(x=>x!==lastPick[key]);
+  if(!pool.length)pool=list;
+  const v=pool[rnd(pool.length)];
+  if(key)lastPick[key]=v;
+  return v;
+}
 function go(scr){S.screen=scr;render();window.scrollTo(0,0);}
 
 /* =========================================================
@@ -427,6 +471,7 @@ function buildRound(){
     const nImp=g.impostors||1;
     const impSet=shuffle([...Array(n).keys()]).slice(0,nImp);
     r.impostors=impSet; r.cards=[];
+    impSet.forEach(i=>{ if(P[i])P[i].impTimes=(P[i].impTimes||0)+1; });
     if(g.id==='camaleao'||g.id==='duplo'){
       const word=pickWord(items); r.secretWord=word;
       const impLabel=g.id==='duplo'?'IMPOSTOR':'CAMALEÃO';
@@ -436,7 +481,7 @@ function buildRound(){
           : {type:'cid', kicker:'O segredo é', big:word, sub:'Dê uma pista sutil. Não entregue o segredo.'});
       }
     } else if(g.id==='invertida'){
-      const pair=QPAIRS[rnd(QPAIRS.length)]; r.pair=pair;
+      const pair=pickNoRepeat(QPAIRS,'qpairs'); r.pair=pair;
       for(let i=0;i<n;i++){
         r.cards.push({type:'cid', kicker:'Sua pergunta', big:'❓',
           q: impSet.includes(i)?pair[1]:pair[0], sub:'Leia em segredo e diga sua resposta em voz alta agora.'});
@@ -455,19 +500,20 @@ function buildRound(){
   }
   else if(g.fam==='reg'){
     r.host=rnd(n);
-    if(g.variants){ const v=g.variants[rnd(g.variants.length)]; r.secret=v.secret; r.scenario={name:v.name,prompt:v.prompt}; }
+    if(g.variants){ const v=pickNoRepeat(g.variants,'scenario'); r.secret=v.secret; r.scenario={name:v.name,prompt:v.prompt}; }
     else { r.secret=g.secret; }
   }
   else if(g.id==='escala'){
-    const prompt=SCALE_PROMPTS[rnd(SCALE_PROMPTS.length)]; r.prompt=prompt;
+    const prompt=pickNoRepeat(SCALE_PROMPTS,'scale'); r.prompt=prompt;
     const nums=shuffle([...Array(10).keys()].map(x=>x+1)).slice(0,n);
     r.cards=nums.map((num)=>({type:'cid',kicker:prompt,big:String(num),sub:'Dê um exemplo dessa intensidade — sem dizer o número.'}));
   }
   else if(g.id==='pistas'){ r.clueGiver=rnd(n); r.concept=pickWord(items); }
-  else if(g.id==='botao'){ r.debate={head:'Aperta ou não?',text:BOTAO[rnd(BOTAO.length)]}; }
-  else if(g.id==='opiniao'){ r.debate={head:'Concorda ou discorda?',text:OPINIOES[rnd(OPINIOES.length)]}; }
-  else if(g.id==='inutil'){ r.debate={head:'Defenda o absurdo:',text:INUTIL[rnd(INUTIL.length)]}; }
-  else if(g.id==='entrevista'){ r.performer=rnd(n); r.character=PERSONAGENS[rnd(PERSONAGENS.length)]; r.questions=shuffle(ENTREVISTA_Q).slice(0,5); }
+  else if(g.id==='botao'){ r.debate={head:'Aperta ou não?',text:pickNoRepeat(BOTAO,'botao')}; }
+  else if(g.id==='opiniao'){ r.debate={head:'Concorda ou discorda?',text:pickNoRepeat(OPINIOES,'opiniao')}; }
+  else if(g.id==='inutil'){ r.debate={head:'Defenda o absurdo:',text:pickNoRepeat(INUTIL,'inutil')}; }
+  else if(g.id==='entrevista'){ r.performer=rnd(n); r.character=pickNoRepeat(PERSONAGENS,'pers'); r.questions=shuffle(ENTREVISTA_Q).slice(0,5); }
+  else if(g.id==='provavel'){ r.prompt=pickNoRepeat(MAIS_PROVAVEL,'prov'); }
   S.round=r;
 }
 
@@ -478,6 +524,11 @@ function award(idxList,pts){idxList.forEach(i=>{if(S.players[i])S.players[i].sco
 function nextRoundOrEnd(){
   if(S.currentRound>=S.rounds){go('champion');}
   else{S.currentRound++;S.game=null;S.round=null;go('play');}
+}
+function resetNight(){
+  S.players.forEach(p=>{p.score=0;p.impTimes=0;});
+  S.currentRound=1;S.game=null;S.round=null;S.lastGameId=null;S.lastWord=null;
+  S.maf=null;S.hist=null;S.stats={games:{},rounds:0};
 }
 
 /* =========================================================
@@ -773,6 +824,34 @@ function viewHistResolve(){
   </div>`;
 }
 
+/* ----- QUEM É MAIS PROVÁVEL DE… ----- */
+function viewProvavel(){
+  const r=S.round;
+  return `${bar()}<div class="screen stagger">
+    <div class="center" style="margin:10px 0"><div class="big-emoji">👉</div></div>
+    <div class="kicker center">Quem é mais provável de…</div>
+    <div class="card" style="margin-top:12px;border-left:3px solid #ff8fc4">
+      <p style="font-size:clamp(18px,6vw,24px);line-height:1.45;font-weight:700">${esc(r.prompt)}</p>
+    </div>
+    <div class="note" style="margin-top:14px">Todos apontam ao mesmo tempo na contagem: <b>3… 2… 1… JÁ!</b> Olhem pra quem o grupo apontou.</div>
+    <div class="spacer"></div>
+    <button class="btn btn-red btn-lg" data-action="toProvavelResolve">Contar os votos →</button>
+  </div>`;
+}
+function viewProvavelResolve(){
+  const r=S.round, sel=r.provSel;
+  const opts=S.players.map((p,i)=>`<button class="btn ${sel===i?'btn-lime':'btn-ghost'}" data-action="provavelPick:${i}" style="margin-bottom:8px;width:100%">${sel===i?'✓ ':''}${esc(p.name)}</button>`).join('');
+  return `${bar()}<div class="screen">
+    <h1 style="font-size:clamp(22px,7vw,26px);margin-top:10px" class="center">Quem recebeu mais dedos?</h1>
+    <p class="muted center" style="margin:6px 0 14px;font-size:13.5px">"${esc(r.prompt)}"</p>
+    ${opts}
+    <div class="spacer"></div>
+    <button class="btn btn-lime btn-lg" data-action="provavelAward" ${sel==null?'disabled':''}>Confirmar — +1 para o escolhido →</button>
+    <div style="height:9px"></div>
+    <button class="btn btn-ghost" data-action="provavelSkip">Deu empate / sem pontos →</button>
+  </div>`;
+}
+
 function viewDebate(){
   const d=S.round.debate;
   return `${bar()}<div class="screen stagger">
@@ -935,6 +1014,33 @@ function viewScoreboard(){
   </div>`;
 }
 
+function nightStatsHTML(){
+  const st=S.stats||{games:{},rounds:0};
+  const entries=Object.entries(st.games||{});
+  const anyImp=S.players.some(p=>(p.impTimes||0)>0);
+  if(!entries.length && !anyImp)return '';
+  const rows=[];
+  const totalRounds=st.rounds||entries.reduce((a,[,c])=>a+c,0);
+  rows.push(['🎲','Rodadas jogadas', String(totalRounds)]);
+  if(entries.length){
+    const sorted=[...entries].sort((a,b)=>b[1]-a[1]);
+    const [gid,cnt]=sorted[0];
+    const g=GAMES.find(x=>x.id===gid);
+    rows.push([g?g.emoji:'🎮','Jogo da noite', `${g?g.name:gid} · ${cnt}×`]);
+    rows.push(['🗂️','Jogos diferentes', String(entries.length)]);
+  }
+  const imp=S.players.map(p=>({n:p.name,c:p.impTimes||0})).filter(p=>p.c>0).sort((a,b)=>b.c-a.c);
+  if(imp.length){
+    const top=imp[0].c, who=imp.filter(p=>p.c===top).map(p=>p.n).join(' & ');
+    rows.push(['🕵️','O mais suspeito', `${who} · ${top}× impostor`]);
+  }
+  const body=rows.map(([e,k,v])=>`<div style="display:flex;align-items:center;gap:12px;padding:11px 14px;background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:8px">
+    <div style="font-size:20px;line-height:1">${e}</div>
+    <div style="flex:1;font-size:13px;color:var(--muted)">${k}</div>
+    <div style="font-size:14px;font-weight:700;text-align:right">${esc(v)}</div>
+  </div>`).join('');
+  return `<div class="sec-label" style="margin:24px 0 10px">📊 A noite em números</div>${body}`;
+}
 function viewChampion(){
   const sorted=[...S.players].map((p,i)=>({...p,i})).sort((a,b)=>b.score-a.score);
   const top=sorted[0]?sorted[0].score:0;
@@ -950,6 +1056,7 @@ function viewChampion(){
     <h1 style="font-size:clamp(32px,11vw,46px);color:var(--gold)">${esc(champName)}</h1>
     <p class="muted" style="margin:8px 0 24px">${top} pontos</p>
     <div style="text-align:left">${rows}</div>
+    <div style="text-align:left">${nightStatsHTML()}</div>
     <div class="spacer"></div>
     <button class="btn btn-lime btn-lg" data-action="newNight">🔁 Nova noite (zerar placar)</button>
     <div style="height:9px"></div>
@@ -975,6 +1082,8 @@ function render(){
     case 'entrevistaQ':html=viewEntrevistaQ();break;
     case 'histTurn':html=viewHistTurn();break;
     case 'histResolve':html=viewHistResolve();break;
+    case 'provavel':html=viewProvavel();break;
+    case 'provavelResolve':html=viewProvavelResolve();break;
     case 'debate':html=viewDebate();break;
     case 'discuss':html=viewDiscuss();break;
     case 'resolve':html=viewResolve();break;
@@ -1004,7 +1113,7 @@ function render(){
 function addPlayer(){
   const inp=$('#pname');if(!inp)return;
   const name=inp.value.trim();if(!name)return;
-  S.players.push({name,score:0});render();
+  S.players.push({name,score:0,impTimes:0});render();
 }
 function addCustom(){
   const inp=$('#cword');if(!inp)return;
@@ -1014,11 +1123,15 @@ function addCustom(){
   render();
 }
 function setupRound(){
+  if(!S.stats)S.stats={games:{},rounds:0};
+  S.stats.games[S.game.id]=(S.stats.games[S.game.id]||0)+1;
+  S.stats.rounds=(S.stats.rounds||0)+1;
   if(S.game.id==='mafia'){ initMafiaSetup(); go('mafSetup'); return; }
   if(S.game.id==='historia'){ initHistoria(); go('histTurn'); return; }
   buildRound();
   const g=S.game;
   if(g.id==='entrevista')go('entrevistaReveal');
+  else if(g.id==='provavel')go('provavel');
   else if(g.fam==='imp'||g.id==='escala')go('reveal');
   else if(g.fam==='reg')go('hostReveal');
   else if(g.id==='pistas')go('clueReveal');
@@ -1326,7 +1439,7 @@ document.addEventListener('click',(e)=>{
   const a=t.dataset.action;
   switch(true){
     case a==='toPlay':go(S.players.length>=2?'play':'players');break;
-    case a==='newOrKeep':S.players.forEach(p=>p.score=0);S.currentRound=1;S.game=null;S.round=null;S.lastGameId=null;S.lastWord=null;go(S.players.length>=2?'play':'players');break;
+    case a==='newOrKeep':resetNight();go(S.players.length>=2?'play':'players');break;
     case a==='addP':addPlayer();break;
     case a==='addCW':addCustom();break;
     case a==='sortear':{
@@ -1370,6 +1483,10 @@ document.addEventListener('click',(e)=>{
     case a&&a.startsWith('histPick:'):S.hist.bestSel=+a.split(':')[1];render();break;
     case a==='histAward':{const i=S.hist&&S.hist.bestSel;if(i!=null)award([i],1);S.hist=null;nextRoundOrEnd();break;}
     case a==='histSkip':S.hist=null;nextRoundOrEnd();break;
+    case a==='toProvavelResolve':go('provavelResolve');break;
+    case a&&a.startsWith('provavelPick:'):S.round.provSel=+a.split(':')[1];render();break;
+    case a==='provavelAward':{const i=S.round.provSel;if(i!=null)award([i],1);nextRoundOrEnd();break;}
+    case a==='provavelSkip':nextRoundOrEnd();break;
     case a==='toDiscuss':S.round.timeLeft=S.discuss;S.round.endAt=Date.now()+S.discuss*1000;S.round.paused=false;go('discuss');break;
     case a==='timerToggle':{
       if(!S.round.paused){S.round.paused=true;S.round.timeLeft=Math.max(0,Math.ceil((S.round.endAt-Date.now())/1000));releaseWake();}
@@ -1450,7 +1567,7 @@ document.addEventListener('click',(e)=>{
     case a==='mafNextNight':{const m=S.maf;m.night++;m.eliminated=null;go('mafNight');break;}
     case a==='mafEnd':endMafia();break;
     case a==='mafContinue':S.maf=null;nextRoundOrEnd();break;
-    case a==='newNight':S.players.forEach(p=>p.score=0);S.currentRound=1;S.game=null;S.round=null;S.lastGameId=null;S.lastWord=null;go('home');break;
+    case a==='newNight':resetNight();go('home');break;
     case a==='moreRounds':S.rounds+=3;S.currentRound++;S.game=null;S.round=null;go('play');break;
   }
 });
