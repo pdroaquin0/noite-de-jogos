@@ -323,6 +323,53 @@ const MAIS_PROVAVEL = [
   '…falar sozinho achando que ninguém tá vendo.',
 ];
 
+const VERDADES_HINT = [
+  'algo que você já fez e nunca contou pros pais',
+  'uma viagem, um lugar ou uma comida',
+  'um talento escondido ou uma vergonha alheia sua',
+  'uma celebridade que você já encontrou (ou não)',
+  'algo do seu trabalho/escola',
+  'um medo, uma mania ou um recorde pessoal',
+];
+
+const QUEMDISSE = [
+  'A pior desculpa pra faltar no trabalho.',
+  'O nome de uma banda formada nesta sala.',
+  'Uma regra idiota que você criaria se fosse presidente.',
+  'O conselho mais inútil que alguém já te deu.',
+  'O título do filme da sua vida.',
+  'Algo que NUNCA se deve dizer num primeiro encontro.',
+  'O superpoder mais inútil possível.',
+  'A mentira mais comum que todo mundo conta.',
+  'O pior nome pra dar a um pet.',
+  'Uma desculpa pra sair de uma conversa chata.',
+  'O slogan da sua autobiografia.',
+  'A pior pizza de sabor possível.',
+  'O que você faria com 24h de invisibilidade.',
+  'Uma matéria que deveria existir na escola.',
+];
+
+const TABOO = [
+  {word:'Praia', taboo:['mar','areia','sol','água','biquíni']},
+  {word:'Pizza', taboo:['queijo','massa','fatia','itália','forno']},
+  {word:'Futebol', taboo:['bola','gol','time','campo','jogador']},
+  {word:'Celular', taboo:['telefone','tela','app','ligar','bateria']},
+  {word:'Aniversário', taboo:['bolo','festa','idade','parabéns','vela']},
+  {word:'Médico', taboo:['hospital','doente','jaleco','remédio','saúde']},
+  {word:'Chuva', taboo:['água','guarda-chuva','molhar','nuvem','céu']},
+  {word:'Cachorro', taboo:['latir','pet','animal','osso','rabo']},
+  {word:'Café', taboo:['xícara','manhã','quente','cafeína','grão']},
+  {word:'Casamento', taboo:['noiva','vestido','igreja','aliança','amor']},
+  {word:'Escola', taboo:['professor','aluno','prova','aula','estudar']},
+  {word:'Natal', taboo:['presente','árvore','papai noel','dezembro','ceia']},
+  {word:'Avião', taboo:['voar','viagem','aeroporto','asa','piloto']},
+  {word:'Dentista', taboo:['dente','boca','cárie','escova','sorriso']},
+  {word:'Praia', taboo:['mar','areia','sol','onda','verão']},
+  {word:'Banana', taboo:['fruta','macaco','amarelo','casca','potássio']},
+  {word:'Selfie', taboo:['foto','celular','rosto','câmera','pose']},
+  {word:'Academia', taboo:['músculo','peso','treino','suor','malhar']},
+];
+
 const GAMES = [
   {id:'camaleao', fam:'imp', emoji:'🦎', name:'Camaleão', min:3, max:14, theme:true,
    desc:'Todos recebem o mesmo segredo. O camaleão, não. Achem ele.',
@@ -378,6 +425,15 @@ const GAMES = [
   {id:'provavel', fam:'vote', emoji:'👉', name:'Quem é mais provável de…', min:3, max:99,
    desc:'O celular lê uma situação. Na contagem, todos apontam pra alguém.',
    rules:'O celular sorteia uma situação ("…sumir de uma festa sem avisar"). Na contagem regressiva — 3, 2, 1, JÁ! — todos apontam ao mesmo tempo para a pessoa do grupo que mais combina. Quem recebeu mais dedos leva +1 (ou perde, vocês decidem antes). Sem dó, sem pena.'},
+  {id:'verdades', fam:'vote', emoji:'🤥', name:'Duas Verdades e Uma Mentira', min:3, max:14,
+   desc:'Conte 3 coisas sobre você. O grupo aponta qual é a mentira.',
+   rules:'Um jogador é sorteado e o celular diz a ele, EM SEGREDO, em qual posição (1ª, 2ª ou 3ª) ele deve colocar a mentira. Ele conta as três coisas em voz alta, na ordem. O grupo debate e vota em qual número é a mentira. Acertou o número → o grupo pontua; o contador enganou todo mundo → ele leva +2. A cada rodada entra um novo contador.'},
+  {id:'quemdisse', fam:'vote', emoji:'💬', name:'Quem Disse Isso?', min:3, max:12,
+   desc:'Todos respondem a mesma pergunta em segredo. Votem na melhor.',
+   rules:'O celular passa por cada jogador com a MESMA pergunta engraçada. Cada um digita uma resposta em segredo. No fim, todas aparecem embaralhadas e anônimas — o grupo lê em voz alta e vota na melhor. O autor da resposta vencedora leva +1. Digitem rápido pra não travar a roda.'},
+  {id:'proibida', fam:'esc', emoji:'🚫', name:'Palavra Proibida', min:3, max:14,
+   desc:'Faça o grupo adivinhar a palavra sem dizer as proibidas.',
+   rules:'Um jogador vê uma palavra secreta e uma lista de 5 palavras PROIBIDAS. Ele descreve a palavra pro grupo adivinhar — mas não pode dizer nenhuma das proibidas (nem a própria palavra). Falou uma proibida, passou a vez. Quem adivinhar primeiro pontua junto com quem descreveu.'},
 ];
 
 const FAM_TAG = {imp:['imp','Impostor'], reg:['reg','Qual é a regra'], esc:['esc','Sintonia'], deb:['deb','Debate'], maf:['maf','Dedução'], perf:['perf','Atuação'], vote:['vote','Votação']};
@@ -514,6 +570,9 @@ function buildRound(){
   else if(g.id==='inutil'){ r.debate={head:'Defenda o absurdo:',text:pickNoRepeat(INUTIL,'inutil')}; }
   else if(g.id==='entrevista'){ r.performer=rnd(n); r.character=pickNoRepeat(PERSONAGENS,'pers'); r.questions=shuffle(ENTREVISTA_Q).slice(0,5); }
   else if(g.id==='provavel'){ r.prompt=pickNoRepeat(MAIS_PROVAVEL,'prov'); }
+  else if(g.id==='verdades'){ r.teller=rnd(n); r.liePos=1+rnd(3); r.hint=pickNoRepeat(VERDADES_HINT,'vh'); }
+  else if(g.id==='quemdisse'){ r.prompt=pickNoRepeat(QUEMDISSE,'qd'); r.answers=[]; r.collectIdx=0; }
+  else if(g.id==='proibida'){ r.clueGiver=rnd(n); r.taboo=pickNoRepeat(TABOO,'taboo'); }
   S.round=r;
 }
 
@@ -598,7 +657,7 @@ function viewConfig(){
   <div class="screen">
     <h1 style="font-size:clamp(28px,9vw,34px);margin-top:6px">Ajustes</h1>
     <div class="sec-label">Tema das palavras</div>
-    <p class="muted" style="margin-bottom:12px;font-size:13px">Usado em Palavra Oculta, Personagem, Coordenada e 3 Pistas.</p>
+    <p class="muted" style="margin-bottom:12px;font-size:13px">Usado em Camaleão, Coordenada, 3 Pistas e Palavra Proibida.</p>
     <div class="chips">${presets}${customChip}</div>
     <div class="sec-label">Tema personalizado ✏️</div>
     <p class="muted" style="margin-bottom:11px;font-size:13px">Crie seu banco (piadas internas, nomes do grupo...). Separe por vírgula. Mín. 3 palavras.</p>
@@ -852,6 +911,99 @@ function viewProvavelResolve(){
   </div>`;
 }
 
+/* ----- DUAS VERDADES E UMA MENTIRA ----- */
+function viewVerdadesReveal(){
+  const r=S.round, t=S.players[r.teller];
+  return `${bar()}<div class="screen pass">
+    <div class="kicker">Quem vai contar</div>
+    <h1 style="font-size:clamp(28px,10vw,38px)">${esc(t.name)}</h1>
+    <p class="muted">Só ${esc(t.name)} toca e vê em que posição colocar a mentira. Os outros não olham.</p>
+    <div class="reveal-card hidden" id="rcard" data-action="flipVerdades">
+      <div class="big-emoji">🤥</div>
+      <div style="margin-top:10px;font-weight:700">Toque (só você)</div>
+    </div>
+    <button class="btn btn-ghost btn-sm" data-action="reVerdades">🎲 Outro contador</button>
+  </div>`;
+}
+function viewVerdadesResolve(){
+  const r=S.round, gv=r.groupVote;
+  if(gv==null){
+    const btns=[1,2,3].map(n=>`<button class="btn btn-ghost btn-lg" data-action="verdadesVote:${n}" style="margin-bottom:10px;width:100%">Frase nº ${n}</button>`).join('');
+    return `${bar()}<div class="screen">
+      <div class="center" style="margin:6px 0"><div class="big-emoji">🤔</div></div>
+      <h1 class="center" style="font-size:clamp(22px,7vw,26px)">Em qual número o grupo votou?</h1>
+      <p class="muted center" style="font-size:13.5px;margin:8px 0 16px">A frase que vocês acham que é a mentira.</p>
+      ${btns}
+    </div>`;
+  }
+  const ok=gv===r.liePos;
+  return `${bar()}<div class="screen center">
+    <div class="big-emoji" style="margin:14px 0">${ok?'🎯':'🤥'}</div>
+    <h1 style="font-size:clamp(24px,8vw,30px);color:${ok?'var(--lime)':'var(--red)'}">${ok?'Acertaram!':'Foram enganados!'}</h1>
+    <p class="muted" style="margin:10px 0 4px">A mentira era a <b>frase nº ${r.liePos}</b>. O grupo votou na nº ${gv}.</p>
+    <p class="muted" style="font-size:14px">${ok?'O grupo todo leva +1.':`${esc(S.players[r.teller].name)} enganou todo mundo: +2.`}</p>
+    <div class="spacer"></div>
+    <button class="btn btn-lime btn-lg" data-action="verdadesNext">Continuar →</button>
+  </div>`;
+}
+
+/* ----- QUEM DISSE ISSO? ----- */
+function viewQuemdisseCollect(){
+  const r=S.round, i=r.collectIdx, P=S.players;
+  if(i>=P.length)return viewQuemdisseVote();
+  return `${bar()}<div class="screen">
+    <div class="kicker center">Resposta secreta · ${i+1} de ${P.length}</div>
+    <h1 class="center" style="font-size:clamp(24px,9vw,32px);margin-top:4px">${esc(P[i].name)}</h1>
+    <p class="muted center" style="font-size:13.5px">Passe o celular só pra ${esc(P[i].name)}. Digite sem ninguém ver.</p>
+    <div class="card" style="margin:14px 0;border-left:3px solid #ff8fc4">
+      <p style="font-size:clamp(16px,5vw,19px);line-height:1.45;font-weight:700">${esc(r.prompt)}</p>
+    </div>
+    <input id="qans" placeholder="Sua resposta…" autocomplete="off" maxlength="80" style="width:100%;box-sizing:border-box">
+    <div class="spacer"></div>
+    <button class="btn btn-lime btn-lg" data-action="quemdisseSubmit">Pronto, próximo →</button>
+  </div>`;
+}
+function viewQuemdisseVote(){
+  const r=S.round;
+  const opts=r.shuffled.map((a,k)=>`<button class="btn ${r.qsel===k?'btn-lime':'btn-ghost'}" data-action="qdPick:${k}" style="margin-bottom:8px;width:100%;text-align:left;white-space:normal;line-height:1.35;height:auto;padding:14px 16px">${r.qsel===k?'✓ ':''}${esc(a.text)}</button>`).join('');
+  return `${bar()}<div class="screen">
+    <h1 style="font-size:clamp(20px,6.5vw,24px);margin-top:8px" class="center">Votem na melhor resposta</h1>
+    <p class="muted center" style="font-size:13px;margin:6px 0 14px">"${esc(r.prompt)}"</p>
+    ${opts}
+    <div class="spacer"></div>
+    <button class="btn btn-lime btn-lg" data-action="qdAward" ${r.qsel==null?'disabled':''}>Coroar essa resposta →</button>
+  </div>`;
+}
+function viewQuemdisseResult(){
+  const r=S.round, a=r.shuffled[r.qsel];
+  return `${bar()}<div class="screen center">
+    <div class="big-emoji" style="margin:14px 0">🏆</div>
+    <div class="kicker">Resposta vencedora</div>
+    <div class="card" style="margin:12px 0;border-left:3px solid var(--gold);text-align:left">
+      <p style="font-size:clamp(16px,5vw,19px);line-height:1.4">${esc(a.text)}</p>
+    </div>
+    <h1 style="font-size:clamp(24px,8vw,30px);color:var(--gold)">${esc(S.players[a.by].name)}</h1>
+    <p class="muted" style="margin-top:6px">+1 ponto 🎉</p>
+    <div class="spacer"></div>
+    <button class="btn btn-lime btn-lg" data-action="qdNext">Continuar →</button>
+  </div>`;
+}
+
+/* ----- PALAVRA PROIBIDA ----- */
+function viewProibidaReveal(){
+  const r=S.round, cg=S.players[r.clueGiver];
+  return `${bar()}<div class="screen pass">
+    <div class="kicker">Quem descreve</div>
+    <h1 style="font-size:clamp(28px,10vw,38px)">${esc(cg.name)}</h1>
+    <p class="muted">Só ${esc(cg.name)} vê a palavra e as proibidas. Toque para revelar.</p>
+    <div class="reveal-card hidden" id="rcard" data-action="flipProibida">
+      <div class="big-emoji">🚫</div>
+      <div style="margin-top:10px;font-weight:700">Toque para ver sua palavra</div>
+    </div>
+    <button class="btn btn-ghost btn-sm" data-action="reProibida">🎲 Outro jogador</button>
+  </div>`;
+}
+
 function viewDebate(){
   const d=S.round.debate;
   return `${bar()}<div class="screen stagger">
@@ -969,6 +1121,17 @@ function viewResolve(){
       <button class="btn btn-red" data-action="res:pistas:none">Ninguém acertou (0 ponto)</button>
     </div>`;
   }
+  if(g.id==='proibida'){
+    const cg=S.players[r.clueGiver].name;
+    const opts=S.players.map((p,i)=>i===r.clueGiver?'':`<button class="btn btn-ghost" data-action="res:proibida:${i}" style="margin-bottom:8px;width:100%">${esc(p.name)} adivinhou (+1 p/ ele e ${esc(cg)})</button>`).join('');
+    return `${bar()}<div class="screen">
+      <h1 style="font-size:clamp(22px,7vw,26px);margin-top:10px" class="center">A palavra era:</h1>
+      <div class="reveal-card shown cidade" style="min-height:auto;margin:14px 0;padding:24px"><div class="big cid">${esc(r.taboo.word)}</div></div>
+      <div class="sec-label">Quem adivinhou?</div>
+      ${opts}
+      <button class="btn btn-red" data-action="res:proibida:none">Ninguém / o descritor falou proibida (0)</button>
+    </div>`;
+  }
   if(g.id==='entrevista'){
     const perf=S.players[r.performer];
     return `${bar()}<div class="screen center">
@@ -1084,6 +1247,12 @@ function render(){
     case 'histResolve':html=viewHistResolve();break;
     case 'provavel':html=viewProvavel();break;
     case 'provavelResolve':html=viewProvavelResolve();break;
+    case 'verdadesReveal':html=viewVerdadesReveal();break;
+    case 'verdadesResolve':html=viewVerdadesResolve();break;
+    case 'quemdisseCollect':html=viewQuemdisseCollect();break;
+    case 'quemdisseVote':html=viewQuemdisseVote();break;
+    case 'quemdisseResult':html=viewQuemdisseResult();break;
+    case 'proibidaReveal':html=viewProibidaReveal();break;
     case 'debate':html=viewDebate();break;
     case 'discuss':html=viewDiscuss();break;
     case 'resolve':html=viewResolve();break;
@@ -1102,6 +1271,7 @@ function render(){
   if(S.screen==='discuss')tickStart();
   if(S.screen==='histTurn')histTickStart();
   if(S.screen==='players'){const inp=$('#pname');if(inp){inp.focus();inp.onkeydown=e=>{if(e.key==='Enter')addPlayer();};}}
+  if(S.screen==='quemdisseCollect'){const inp=$('#qans');if(inp){inp.focus();inp.onkeydown=e=>{if(e.key==='Enter')quemdisseSubmit();};}}
   if(S.screen==='config'){const ci=$('#cword');if(ci){ci.onkeydown=e=>{if(e.key==='Enter')addCustom();};}}
   if(S.screen==='champion'||S.screen==='mafOver')confetti();
   save();
@@ -1122,20 +1292,34 @@ function addCustom(){
   parts.forEach(w=>{if(!S.customWords.some(x=>x.toLowerCase()===w.toLowerCase()))S.customWords.push(w);});
   render();
 }
-function setupRound(){
-  if(!S.stats)S.stats={games:{},rounds:0};
-  S.stats.games[S.game.id]=(S.stats.games[S.game.id]||0)+1;
-  S.stats.rounds=(S.stats.rounds||0)+1;
-  if(S.game.id==='mafia'){ initMafiaSetup(); go('mafSetup'); return; }
-  if(S.game.id==='historia'){ initHistoria(); go('histTurn'); return; }
-  buildRound();
+function quemdisseSubmit(){
+  const r=S.round, inp=$('#qans');
+  const txt=inp?inp.value.trim():'';
+  r.answers.push({by:r.collectIdx, text:txt||'(em branco)'});
+  r.collectIdx++;
+  if(r.collectIdx>=S.players.length){ r.shuffled=shuffle(r.answers); r.qsel=null; go('quemdisseVote'); }
+  else render();
+}
+function routeRoundStart(){
   const g=S.game;
+  if(g.id==='mafia'){ initMafiaSetup(); go('mafSetup'); return; }
+  if(g.id==='historia'){ initHistoria(); go('histTurn'); return; }
+  buildRound();
   if(g.id==='entrevista')go('entrevistaReveal');
   else if(g.id==='provavel')go('provavel');
+  else if(g.id==='verdades')go('verdadesReveal');
+  else if(g.id==='quemdisse')go('quemdisseCollect');
+  else if(g.id==='proibida')go('proibidaReveal');
   else if(g.fam==='imp'||g.id==='escala')go('reveal');
   else if(g.fam==='reg')go('hostReveal');
   else if(g.id==='pistas')go('clueReveal');
   else if(g.fam==='deb')go('debate');
+}
+function setupRound(){
+  if(!S.stats)S.stats={games:{},rounds:0};
+  S.stats.games[S.game.id]=(S.stats.games[S.game.id]||0)+1;
+  S.stats.rounds=(S.stats.rounds||0)+1;
+  routeRoundStart();
 }
 function applyResolve(action){
   const g=S.game,r=S.round;const parts=action.split(':');
@@ -1147,6 +1331,8 @@ function applyResolve(action){
   } else if(g.id==='escala'){
     if(parts[2]==='1')award(S.players.map((_,i)=>i),1);
   } else if(g.id==='pistas'){
+    if(parts[2]!=='none')award([+parts[2],r.clueGiver],1);
+  } else if(g.id==='proibida'){
     if(parts[2]!=='none')award([+parts[2],r.clueGiver],1);
   } else if(g.id==='entrevista'){
     if(parts[2]==='1')award([r.performer],1);
@@ -1487,6 +1673,37 @@ document.addEventListener('click',(e)=>{
     case a&&a.startsWith('provavelPick:'):S.round.provSel=+a.split(':')[1];render();break;
     case a==='provavelAward':{const i=S.round.provSel;if(i!=null)award([i],1);nextRoundOrEnd();break;}
     case a==='provavelSkip':nextRoundOrEnd();break;
+
+    /* Duas Verdades e Uma Mentira */
+    case a==='flipVerdades':{
+      const c=$('#rcard');if(!c)break;const r=S.round;
+      c.className='reveal-card shown cidade flip-in';
+      c.innerHTML=`<div class="kicker">Sua mentira é a</div><div class="big cid" style="font-size:clamp(40px,14vw,56px);margin:8px 0">FRASE Nº ${r.liePos}</div><p class="muted" style="font-size:13px;max-width:280px">Conte 3 coisas sobre você, na ordem. A nº ${r.liePos} tem que ser a mentira. Ideia: ${esc(r.hint)}.</p><div style="margin-top:16px"><button class="btn btn-lime btn-sm" data-action="toVerdadesResolve">Memorizei — vou contar →</button></div>`;
+      break;
+    }
+    case a==='reVerdades':S.round.teller=rnd(S.players.length);S.round.liePos=1+rnd(3);render();break;
+    case a==='toVerdadesResolve':S.round.groupVote=null;go('verdadesResolve');break;
+    case a&&a.startsWith('verdadesVote:'):S.round.groupVote=+a.split(':')[1];render();break;
+    case a==='verdadesNext':{const r=S.round;
+      if(r.groupVote===r.liePos){const others=S.players.map((_,i)=>i).filter(i=>i!==r.teller);award(others,1);}
+      else award([r.teller],2);
+      nextRoundOrEnd();break;}
+
+    /* Quem Disse Isso? */
+    case a==='quemdisseSubmit':quemdisseSubmit();break;
+    case a&&a.startsWith('qdPick:'):S.round.qsel=+a.split(':')[1];render();break;
+    case a==='qdAward':if(S.round.qsel!=null)go('quemdisseResult');break;
+    case a==='qdNext':{const a2=S.round.shuffled[S.round.qsel];if(a2)award([a2.by],1);nextRoundOrEnd();break;}
+
+    /* Palavra Proibida */
+    case a==='flipProibida':{
+      const c=$('#rcard');if(!c)break;const t=S.round.taboo;
+      const forb=t.taboo.map(w=>`<span style="display:inline-block;background:rgba(255,59,92,.16);color:#ff8298;padding:4px 9px;border-radius:8px;margin:3px;font-size:13px;font-weight:600">${esc(w)}</span>`).join('');
+      c.className='reveal-card shown cidade flip-in';
+      c.innerHTML=`<div class="kicker">Faça adivinharem</div><div class="big cid" style="font-size:clamp(28px,9vw,38px);margin:8px 0">${esc(t.word)}</div><div class="kicker" style="color:var(--red);margin-top:6px">Não pode dizer</div><div style="margin:8px 0">${forb}</div><div style="margin-top:10px"><button class="btn btn-lime btn-sm" data-action="toDiscuss">Começar ⏱</button></div>`;
+      break;
+    }
+    case a==='reProibida':S.round.clueGiver=rnd(S.players.length);render();break;
     case a==='toDiscuss':S.round.timeLeft=S.discuss;S.round.endAt=Date.now()+S.discuss*1000;S.round.paused=false;go('discuss');break;
     case a==='timerToggle':{
       if(!S.round.paused){S.round.paused=true;S.round.timeLeft=Math.max(0,Math.ceil((S.round.endAt-Date.now())/1000));releaseWake();}
