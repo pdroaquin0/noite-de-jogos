@@ -1,7 +1,7 @@
 /* Noite de Jogos — service worker
    Atualize a versão abaixo sempre que publicar uma mudança grande no app
    para forçar a renovação do cache nos aparelhos. */
-const CACHE = 'noite-jogos-v4';
+const CACHE = 'noite-jogos-v5';
 const ASSETS = [
   './',
   './index.html',
