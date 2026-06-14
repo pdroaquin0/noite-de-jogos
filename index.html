@@ -1106,7 +1106,7 @@ function viewHostReveal(){
       <div class="big-emoji">🤫</div>
       <div style="margin-top:10px;font-weight:700">Toque para ver a regra</div>
     </div>
-    <button class="btn btn-ghost btn-sm" data-action="reHost">🎲 Sortear outro anfitrião</button>
+    <button class="btn btn-ghost btn-sm" data-action="reHost">🎲 Outro anfitrião e nova regra</button>
   </div>`;
 }
 
@@ -1575,12 +1575,12 @@ function viewScoreboard(){
   </div>`;
 }
 
-function nightStatsHTML(){
+function nightStatsRows(){
   const st=S.stats||{games:{},rounds:0};
   const entries=Object.entries(st.games||{});
   const anyImp=S.players.some(p=>(p.impTimes||0)>0);
-  if(!entries.length && !anyImp)return '';
   const rows=[];
+  if(!entries.length && !anyImp)return rows;
   const totalRounds=st.rounds||entries.reduce((a,[,c])=>a+c,0);
   rows.push(['🎲','Rodadas jogadas', String(totalRounds)]);
   if(entries.length){
@@ -1592,15 +1592,102 @@ function nightStatsHTML(){
   }
   const imp=S.players.map(p=>({n:p.name,c:p.impTimes||0})).filter(p=>p.c>0).sort((a,b)=>b.c-a.c);
   if(imp.length){
-    const top=imp[0].c, who=imp.filter(p=>p.c===top).map(p=>p.n).join(' & ');
-    rows.push(['🕵️','O mais suspeito', `${who} · ${top}× impostor`]);
+    const t=imp[0].c, who=imp.filter(p=>p.c===t).map(p=>p.n).join(' & ');
+    rows.push(['🕵️','O mais suspeito', `${who} · ${t}× impostor`]);
   }
+  return rows;
+}
+function nightStatsHTML(){
+  const rows=nightStatsRows();
+  if(!rows.length)return '';
   const body=rows.map(([e,k,v])=>`<div style="display:flex;align-items:center;gap:12px;padding:11px 14px;background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:8px">
     <div style="font-size:20px;line-height:1">${e}</div>
     <div style="flex:1;font-size:13px;color:var(--muted)">${k}</div>
     <div style="font-size:14px;font-weight:700;text-align:right">${esc(v)}</div>
   </div>`).join('');
   return `<div class="sec-label" style="margin:24px 0 10px">📊 A noite em números</div>${body}`;
+}
+
+/* ---- imagem do placar (canvas, sem dependências) ---- */
+function rr(ctx,x,y,w,h,r){ctx.beginPath();if(ctx.roundRect){ctx.roundRect(x,y,w,h,r);}else{ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}}
+async function shareScoreImage(){
+  try{ if(document.fonts&&document.fonts.ready)await document.fonts.ready; }catch(e){}
+  const C={bg:'#0e0e14',surf:'#16161f',line:'rgba(255,255,255,.09)',lime:'#c6f24e',gold:'#ffcb45',red:'#ff3b5c',text:'#f4f1ea',muted:'#8c8ca0'};
+  const HEAD="'Bricolage Grotesque','Sora',sans-serif", BODY="'Sora',system-ui,sans-serif";
+  const sorted=[...S.players].map(p=>({name:p.name,score:p.score})).sort((a,b)=>b.score-a.score);
+  const topScore=sorted[0]?sorted[0].score:0;
+  const stats=nightStatsRows();
+  const W=1080, PAD=64, rowH=96, statH=88;
+  const headerH=470, rankH=sorted.length*rowH+24;
+  const statsH=stats.length?(stats.length*statH+96):0;
+  const footerH=150;
+  const H=PAD+headerH+rankH+statsH+footerH;
+  const S2=2, cv=document.createElement('canvas'); cv.width=W*S2; cv.height=H*S2;
+  const x=cv.getContext('2d'); x.scale(S2,S2);
+  // bg
+  x.fillStyle=C.bg; x.fillRect(0,0,W,H);
+  // confetti
+  const cc=[C.red,C.gold,C.lime,'#8ec0ff']; let sd=9;
+  const rndf=()=>{sd=(sd*9301+49297)%233280;return sd/233280;};
+  for(let i=0;i<34;i++){const px=rndf()*W,py=rndf()*H,a=rndf()*Math.PI;x.save();x.translate(px,py);x.rotate(a);x.globalAlpha=.22;x.fillStyle=cc[i%4];x.fillRect(0,0,18+rndf()*16,7);x.restore();}
+  x.globalAlpha=1; x.textAlign='center';
+  let y=PAD+54;
+  x.fillStyle=C.muted; x.font=`700 26px ${BODY}`; x.fillText('CAMPEÃO DA NOITE', W/2, y);
+  y+=86; x.font=`88px ${BODY}`; x.fillText('🏆', W/2, y);
+  // champ name (shrink to fit)
+  const champ=(sorted.filter(p=>p.score===topScore&&topScore>0).map(p=>p.name).join(' & '))||(sorted[0]?sorted[0].name:'—');
+  y+=104; let fs=78; x.fillStyle=C.gold; do{x.font=`800 ${fs}px ${HEAD}`; if(x.measureText(champ).width<=W-2*PAD)break; fs-=4;}while(fs>34);
+  x.fillText(champ, W/2, y);
+  y+=58; x.fillStyle=C.muted; x.font=`600 32px ${BODY}`; x.fillText(`${topScore} ${topScore===1?'ponto':'pontos'}`, W/2, y);
+  // ranking
+  y+=70;
+  sorted.forEach((p,i)=>{
+    rr(x,PAD,y,W-2*PAD,rowH-16,18); x.fillStyle=C.surf; x.fill(); x.strokeStyle=C.line; x.lineWidth=2; x.stroke();
+    const cy=y+(rowH-16)/2;
+    x.textAlign='left'; x.textBaseline='middle';
+    const isTop=p.score===topScore&&topScore>0;
+    x.font=`800 34px ${HEAD}`; x.fillStyle=isTop?C.gold:C.muted;
+    x.fillText(isTop?'👑':String(i+1), PAD+30, cy);
+    x.fillStyle=C.text; x.font=`700 38px ${BODY}`;
+    let nm=p.name; while(x.measureText(nm).width>W-2*PAD-260&&nm.length>3){nm=nm.slice(0,-1);} if(nm!==p.name)nm+='…';
+    x.fillText(nm, PAD+110, cy);
+    x.textAlign='right'; x.fillStyle=isTop?C.lime:C.text; x.font=`800 40px ${HEAD}`;
+    x.fillText(String(p.score), W-PAD-30, cy);
+    x.textAlign='left'; x.textBaseline='alphabetic';
+    y+=rowH;
+  });
+  // stats
+  if(stats.length){
+    y+=34; x.textAlign='left'; x.fillStyle=C.muted; x.font=`700 24px ${BODY}`;
+    x.fillText('📊 A NOITE EM NÚMEROS', PAD, y); y+=34;
+    stats.forEach(([e,k,v])=>{
+      rr(x,PAD,y,W-2*PAD,statH-14,16); x.fillStyle=C.surf; x.fill(); x.strokeStyle=C.line; x.lineWidth=2; x.stroke();
+      const cy=y+(statH-14)/2; x.textBaseline='middle';
+      x.font=`34px ${BODY}`; x.textAlign='left'; x.fillStyle=C.text; x.fillText(e, PAD+26, cy);
+      x.font=`500 28px ${BODY}`; x.fillStyle=C.muted; x.fillText(k, PAD+86, cy);
+      x.textAlign='right'; x.font=`700 30px ${BODY}`; x.fillStyle=C.text;
+      let vv=v; while(x.measureText(vv).width>W-2*PAD-360&&vv.length>4){vv=vv.slice(0,-1);} if(vv!==v)vv+='…';
+      x.fillText(vv, W-PAD-26, cy);
+      x.textAlign='left'; x.textBaseline='alphabetic'; y+=statH;
+    });
+  }
+  // footer
+  x.textAlign='center'; x.textBaseline='middle';
+  const fy=H-footerH/2;
+  x.font=`800 34px ${HEAD}`; x.fillStyle=C.lime; x.fillText('🎲 Noite de Jogos', W/2, fy-16);
+  x.font=`500 24px ${BODY}`; x.fillStyle=C.muted; x.fillText('pdroaquin0.github.io/noite-de-jogos', W/2, fy+24);
+  // export
+  cv.toBlob(async(blob)=>{
+    if(!blob)return;
+    const file=new File([blob],'placar-noite-de-jogos.png',{type:'image/png'});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){
+      try{ await navigator.share({files:[file],title:'Noite de Jogos',text:'Placar da nossa noite 🏆'}); }catch(e){}
+    }else{
+      const url=URL.createObjectURL(blob); const a=document.createElement('a');
+      a.href=url; a.download='placar-noite-de-jogos.png'; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url),2000);
+    }
+  },'image/png');
 }
 function viewChampion(){
   const sorted=[...S.players].map((p,i)=>({...p,i})).sort((a,b)=>b.score-a.score);
@@ -1619,6 +1706,8 @@ function viewChampion(){
     <div style="text-align:left">${rows}</div>
     <div style="text-align:left">${nightStatsHTML()}</div>
     <div class="spacer"></div>
+    <button class="btn btn-gold btn-lg" data-action="shareScore">📸 Salvar / compartilhar o placar</button>
+    <div style="height:9px"></div>
     <button class="btn btn-lime btn-lg" data-action="newNight">🔁 Nova noite (zerar placar)</button>
     <div style="height:9px"></div>
     <button class="btn btn-ghost" data-action="moreRounds">➕ Jogar mais 3 rodadas</button>
@@ -2043,6 +2132,7 @@ document.addEventListener('click',(e)=>{
       else if(g.id==='quentes')r.prompt=pickNoRepeat(QUENTES,'qt');
       render();break;
     }
+    case a==='shareScore':shareScoreImage();break;
     case a==='shareApp':{
       const url=location.href.split('#')[0];
       const data={title:'Noite de Jogos',text:'Joguinhos de festa pra jogar com um celular só. Bora?',url};
@@ -2074,7 +2164,12 @@ document.addEventListener('click',(e)=>{
       c.innerHTML=`<div class="kicker">Regra secreta</div><p style="font-size:16px;line-height:1.55;margin-top:12px">${S.round.secret||S.game.secret||''}</p><div style="margin-top:18px"><button class="btn btn-lime btn-sm" data-action="toDiscuss">Entendi — começar ⏱</button></div>`;
       break;
     }
-    case a==='reHost':S.round.host=rnd(S.players.length);render();break;
+    case a==='reHost':{
+      const g=S.game,r=S.round;
+      r.host=rnd(S.players.length);
+      if(g.variants){const v=pickNoRepeat(g.variants,'scenario');r.secret=v.secret;r.scenario={name:v.name,prompt:v.prompt};}
+      render();break;
+    }
     case a==='flipClue':{
       const c=$('#rcard');
       c.className='reveal-card shown cidade flip-in';
