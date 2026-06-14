@@ -43,6 +43,19 @@
     max-width:560px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;
     padding:0 max(var(--pad),env(safe-area-inset-left)) calc(40px + env(safe-area-inset-bottom)) max(var(--pad),env(safe-area-inset-right));
   }
+  body.has-footer #app{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
+  #appfooter{
+    position:fixed;left:0;right:0;bottom:0;z-index:40;display:none;
+    align-items:center;justify-content:center;gap:11px;
+    padding:9px 14px calc(9px + env(safe-area-inset-bottom));
+    background:rgba(14,14,20,.9);backdrop-filter:blur(10px);
+    border-top:1px solid var(--border);font-size:12px;color:var(--muted);
+  }
+  body.has-footer #appfooter{display:flex}
+  #appfooter .kofi{background:var(--gold);color:#1a1407;font-weight:700;padding:7px 13px;border-radius:9px;text-decoration:none;font-size:12.5px;white-space:nowrap;flex:0 0 auto;transition:.15s}
+  #appfooter .kofi:active{transform:scale(.95)}
+  #appfooter .ftxt{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+  #appfooter .ftxt b{color:var(--text)}
   .bar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:8px;
     padding:calc(14px + env(safe-area-inset-top)) 0 12px;background:linear-gradient(var(--bg) 72%,transparent);backdrop-filter:blur(4px)}
   .brand{font-family:var(--display);font-weight:800;font-size:clamp(17px,5vw,20px);letter-spacing:-.02em;line-height:1;display:flex;align-items:center;gap:6px;min-width:0}
@@ -144,6 +157,10 @@
 </head>
 <body>
 <div id="app"></div>
+<div id="appfooter">
+  <a class="kofi" href="https://ko-fi.com/noitedjogos" target="_blank" rel="noopener noreferrer">☕ Apoiar</a>
+  <span class="ftxt">Noite de Jogos · <b>Pedro Aquino</b></span>
+</div>
 <script>
 /* =========================================================
    BANCOS DE PALAVRAS (grandes)
@@ -1513,6 +1530,7 @@ function render(){
     case 'mafOver':html=viewMafOver();break;
   }
   app.innerHTML=html;
+  document.body.classList.toggle('has-footer', ['home','intro','champion','scoreboard','players','config'].includes(S.screen));
   if(S.screen==='discuss')tickStart();
   if(S.screen==='histTurn')histTickStart();
   if(S.screen==='players'){const inp=$('#pname');if(inp){inp.focus();inp.onkeydown=e=>{if(e.key==='Enter')addPlayer();};}}
