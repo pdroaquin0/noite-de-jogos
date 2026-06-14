@@ -5,6 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Noite de Jogos</title>
 <meta name="description" content="Jogos de festa pra jogar juntos, com um só celular.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Noite de Jogos">
+<meta property="og:title" content="Noite de Jogos">
+<meta property="og:description" content="19 jogos de festa pra jogar juntos com um celular só — impostor, dedução, debates e mais. Grátis, sem instalar nada.">
+<meta property="og:url" content="https://pdroaquin0.github.io/noite-de-jogos/">
+<meta property="og:image" content="https://pdroaquin0.github.io/noite-de-jogos/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="pt_BR">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Noite de Jogos">
+<meta name="twitter:description" content="19 jogos de festa pra jogar juntos com um celular só. Grátis, sem instalar nada.">
+<meta name="twitter:image" content="https://pdroaquin0.github.io/noite-de-jogos/og-image.png">
 <meta name="theme-color" content="#0e0e14">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -687,7 +700,7 @@ function debateSplit(aLabel,bLabel){
   const b=idx.slice(half).sort((x,y)=>x-y);
   return {a,b,aLabel,bLabel};
 }
-function go(scr){S.screen=scr;render();window.scrollTo(0,0);}
+function go(scr){if(scr==='scoreboard'&&S.screen!=='scoreboard')S.returnTo=S.screen;S.screen=scr;render();window.scrollTo(0,0);}
 
 /* =========================================================
    MONTAGEM DE RODADA
@@ -820,6 +833,8 @@ function viewHome(){
     <button class="btn ${resume?'btn-ghost':'btn-lime'} btn-lg" data-action="${resume?'newOrKeep':'toPlay'}">${resume?'＋ Nova noite (zera placar)':'▶ Começar a noite'}</button>
     <div class="spacer"></div>
     ${deferredPrompt?`<button class="btn btn-gold btn-lg" data-action="installApp">⬇️ Instalar o app no celular</button><div style="height:9px"></div>`:''}
+    <button class="btn btn-ghost" data-action="shareApp">📤 Compartilhar o app</button>
+    <div style="height:9px"></div>
     <button class="btn btn-ghost" data-go="players">👤 Jogadores ${S.players.length?`(${S.players.length})`:''}</button>
     <div style="height:9px"></div>
     <button class="btn btn-ghost" data-go="config">⚙️ Tema, rodadas e tempo</button>
@@ -1102,6 +1117,7 @@ function viewProvavel(){
       <p style="font-size:clamp(18px,6vw,24px);line-height:1.45;font-weight:700">${esc(r.prompt)}</p>
     </div>
     <div class="note" style="margin-top:14px">Todos apontam ao mesmo tempo na contagem: <b>3… 2… 1… JÁ!</b> Olhem pra quem o grupo apontou.</div>
+    <div class="center" style="margin-top:12px"><button class="btn btn-ghost btn-sm" data-action="rerollPrompt">🎲 Outra pergunta</button></div>
     <div class="spacer"></div>
     <button class="btn btn-red btn-lg" data-action="toProvavelResolve">Contar os votos →</button>
   </div>`;
@@ -1223,6 +1239,7 @@ function viewSilenciosas(){
       <p style="font-size:clamp(18px,6vw,24px);line-height:1.5;font-weight:700">${esc(r.prompt)}</p>
     </div>
     <div class="note" style="margin-top:14px">Cada um responde no seu tempo, em voz alta. Sem pressa, sem julgamento. Quem quiser, pode passar — mas o jogo é melhor quando você encara.</div>
+    <div class="center" style="margin-top:12px"><button class="btn btn-ghost btn-sm" data-action="rerollPrompt">🎲 Outra pergunta</button></div>
     <div class="spacer"></div>
     <button class="btn btn-red btn-lg" data-action="toSilenciosasResolve">Todos responderam →</button>
   </div>`;
@@ -1251,6 +1268,7 @@ function viewQuentes(){
       <p style="font-size:clamp(18px,6vw,24px);line-height:1.45;font-weight:700">${esc(r.prompt)}</p>
     </div>
     <div class="note" style="margin-top:14px">Todos apontam ao mesmo tempo na contagem: <b>3… 2… 1… JÁ!</b></div>
+    <div class="center" style="margin-top:12px"><button class="btn btn-ghost btn-sm" data-action="rerollPrompt">🎲 Outra pergunta</button></div>
     <div class="spacer"></div>
     <button class="btn btn-red btn-lg" data-action="toQuentesResolve">Contar os votos →</button>
   </div>`;
@@ -1292,6 +1310,7 @@ function viewDebate(){
       <p style="font-size:clamp(16px,5vw,19px);line-height:1.55">${esc(d.text)}</p>
     </div>
     ${body}
+    <div class="center" style="margin-top:12px"><button class="btn btn-ghost btn-sm" data-action="rerollPrompt">🎲 Outro tema${sp?' (mantém os times)':''}</button></div>
     <div class="spacer"></div>
     <button class="btn btn-red btn-lg" data-action="toDiscuss">Debater ⏱</button>
     <div style="height:9px"></div>
@@ -1465,7 +1484,7 @@ function viewScoreboard(){
     <p class="muted" style="margin:8px 0 18px">Rodada ${S.currentRound} de ${S.rounds}.</p>
     ${rows||'<p class="faint center" style="padding:30px">Sem jogadores ainda.</p>'}
     <div class="spacer"></div>
-    <button class="btn btn-ghost" data-go="${S.game?'play':'home'}">← Voltar</button>
+    <button class="btn btn-ghost" data-go="${S.returnTo||(S.game?'play':'home')}">← Voltar</button>
   </div>`;
 }
 
@@ -1927,6 +1946,24 @@ document.addEventListener('click',(e)=>{
     case a==='toPlay':go(S.players.length>=2?'play':'players');break;
     case a==='introDone':S.seenIntro=true;go('home');break;
     case a==='installApp':{if(deferredPrompt){const dp=deferredPrompt;deferredPrompt=null;dp.prompt();dp.userChoice.finally(()=>render());}break;}
+    case a==='rerollPrompt':{
+      const g=S.game,r=S.round;
+      if(g.id==='botao')r.debate.text=pickNoRepeat(BOTAO,'botao');
+      else if(g.id==='opiniao')r.debate.text=pickNoRepeat(OPINIOES,'opiniao');
+      else if(g.id==='inutil')r.debate.text=pickNoRepeat(INUTIL,'inutil');
+      else if(g.id==='provavel')r.prompt=pickNoRepeat(MAIS_PROVAVEL,'prov');
+      else if(g.id==='silenciosas')r.prompt=pickNoRepeat(SILENCIOSAS,'sil');
+      else if(g.id==='quentes')r.prompt=pickNoRepeat(QUENTES,'qt');
+      render();break;
+    }
+    case a==='shareApp':{
+      const url=location.href.split('#')[0];
+      const data={title:'Noite de Jogos',text:'Joguinhos de festa pra jogar com um celular só. Bora?',url};
+      if(navigator.share){navigator.share(data).catch(()=>{});}
+      else if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(url).then(()=>alert('Link copiado! Cola no grupo 😉')).catch(()=>prompt('Copie o link:',url));}
+      else{prompt('Copie o link:',url);}
+      break;
+    }
     case a==='newOrKeep':resetNight();go(S.players.length>=2?'play':'players');break;
     case a==='addP':addPlayer();break;
     case a==='addCW':addCustom();break;
